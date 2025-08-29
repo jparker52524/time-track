@@ -1,0 +1,29 @@
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+
+async function request(endpoint, options = {}) {
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+
+  const isJson = res.headers.get("content-type")?.includes("application/json");
+  const data = isJson ? await res.json().catch(() => null) : null;
+
+  if (!res.ok) {
+    const message = data?.error || res.statusText || "Unknown API error";
+    throw new Error(`API Error (${res.status}): ${message}`);
+  }
+
+  return data;
+}
+
+export const api = {
+  get: (endpoint) => request(endpoint),
+  post: (endpoint, body) => request(endpoint, { method: "POST", body }),
+  put: (endpoint, body) => request(endpoint, { method: "PUT", body }),
+  delete: (endpoint) => request(endpoint, { method: "DELETE" }),
+};
