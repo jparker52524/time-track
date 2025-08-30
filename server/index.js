@@ -4,12 +4,21 @@ const cors = require('cors');
 const { Pool } = require('pg');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN
+}));
 app.use(express.json());
 
-const pool = new Pool({
+const poolConfig = {
   connectionString: process.env.DATABASE_URL,
-});
+};
+
+// Only add SSL settings if we're NOT on local
+if (process.env.DATABASE_URL !== "postgres://postgres:password@localhost:5432/tododb") {
+  poolConfig.ssl = { rejectUnauthorized: false };
+}
+
+const pool = new Pool(poolConfig);
 
 // ROUTES
 app.post("/timeLog", async (req, res) => {
