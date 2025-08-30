@@ -14,7 +14,7 @@ const poolConfig = {
 };
 
 // Only add SSL settings if we're NOT on local
-if (process.env.DATABASE_URL !== "postgres://postgres:password@localhost:5432/tododb") {
+if (process.env.DATABASE_URL !== "postgresql://postgres:password@localhost:5432/time_tracker_db") {
   poolConfig.ssl = { rejectUnauthorized: false };
 }
 
