@@ -57,3 +57,39 @@ CREATE TABLE job_times (
 );
 
 -- AI generated tables END
+
+/* SEED DATA
+-- 1. Organizations
+INSERT INTO organizations (name) VALUES
+('Acme Manufacturing'),
+('Beta Robotics');
+
+-- 2. Users (admins + regulars)
+-- Passwords here are just placeholders (hashed "password123" using bcrypt for testing)
+INSERT INTO users (org_id, first_name, last_name, email, password_hash, is_admin) VALUES
+(1, 'Alice', 'Admin', 'alice@acme.com', '$2b$10$S1s7hfTejxvJHEz5xxE2k.2vaVjgYXXvok3iYe6Pi3EIUhpN/UvtS', TRUE),
+(1, 'Bob', 'Worker', 'bob@acme.com', '$2b$10$S1s7hfTejxvJHEz5xxE2k.2vaVjgYXXvok3iYe6Pi3EIUhpN/UvtS', FALSE),
+(2, 'Charlie', 'Admin', 'charlie@beta.com', '$2b$10$S1s7hfTejxvJHEz5xxE2k.2vaVjgYXXvok3iYe6Pi3EIUhpN/UvtS', TRUE),
+(2, 'Dana', 'Worker', 'dana@beta.com', '$2b$10$S1s7hfTejxvJHEz5xxE2k.2vaVjgYXXvok3iYe6Pi3EIUhpN/UvtS', FALSE);
+
+-- 3. Jobs
+INSERT INTO jobs (org_id, name, location, notes) VALUES
+(1, 'Welding Project', 'Plant 1', 'Weld metal frames'),
+(1, 'Assembly Line A', 'Plant 1', 'Assemble components'),
+(2, 'Testing Lab Setup', 'HQ', 'Setup robotics testing lab');
+
+-- 4. Job Assignments
+INSERT INTO job_assignments (job_id, user_id) VALUES
+(1, 1), -- Alice assigned
+(1, 2), -- Bob assigned
+(2, 2), -- Bob assigned to Assembly Line
+(3, 3), -- Charlie assigned
+(3, 4); -- Dana assigned
+
+-- 5. Job Times (start/stop logs)
+INSERT INTO job_times (job_id, user_id, start_time, end_time) VALUES
+(1, 1, '2025-08-29 08:00:00', '2025-08-29 12:00:00'),
+(1, 2, '2025-08-29 09:00:00', '2025-08-29 11:30:00'),
+(2, 2, '2025-08-28 13:00:00', '2025-08-28 16:00:00'),
+(3, 4, '2025-08-29 10:00:00', '2025-08-29 15:00:00');
+*/

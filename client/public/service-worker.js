@@ -27,6 +27,14 @@ self.addEventListener("activate", (event) => {
 
 // Intercept fetch requests
 self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+
+  // 👇 Skip caching for API requests (your EC2 backend)
+  if (url.hostname.includes("localhost") || url.hostname.includes("54.226.148.89")) {
+    return; // Let these requests go straight to the network
+  }
+
+  // Otherwise, use cache-first for static assets
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request);
