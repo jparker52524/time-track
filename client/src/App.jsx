@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import NavBar from "./NavBar.jsx";
 import LoginPage from "./LoginPage.jsx";
