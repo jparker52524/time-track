@@ -1,0 +1,83 @@
+.navbar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  min-width: 320px;
+  height: 50px;
+  background-color: white;
+  display: flex;
+  justify-content: center;      /* center the group of links */
+  align-items: center;          /* vertical center */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.navbar-link {
+  margin: 0 10px;                /* each link 10px from center line */
+}
+
+.navbar-link a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.navbar-link a:hover {
+  color: #007BFF;
+}
+
+.navbar-link a.active {
+  color: #007BFF;
+  font-weight: 600;
+}
+
+
+.logout-btn {
+  position: absolute;   /* take it out of the flex center flow */
+  right: 20px;          /* offset from right edge */
+  top: 50%;             /* vertical center reference */
+  transform: translateY(-50%); /* true vertical center */
+  
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  background: rgba(175, 0, 0, 0.75);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: rgb(175, 0, 0);
+}
+
+.logout-icon {
+  display: none; /* hidden by default */
+  font-size: 1.2rem;
+}
+
+.logout-text {
+  display: inline; /* visible by default */
+}
+
+/* Media query: screens 425px and below */
+@media (max-width: 440px) {
+  .logout-text {
+    display: none; /* hide text */
+  }
+  .logout-icon {
+    display: inline; /* show icon */
+  }
+
+  .logout-btn {
+    padding: 8px; /* smaller padding since only icon */
+    border-radius: 50%; /* optional: make it circular */
+  }
+}

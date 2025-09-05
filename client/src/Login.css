@@ -1,0 +1,32 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;               /* space between inputs */
+    width: 300px;            /* optional: fixed width */
+    padding: 20px;           /* optional: inner spacing */
+    background-color: #213547;
+    border-radius: 8px;
+}
+
+.login-input {
+    padding: 8px 12px;          /* space inside */
+    border: 1px solid #ccc;     /* light gray border */
+    border-radius: 4px;         /* slight rounded corners */
+    font-size: 16px;            /* readable text */
+    outline: none;  
+    margin-bottom: 10px;
+}
+
+.login-input:focus {
+  border-color: #646cff;      /* blue border when focused */
+  box-shadow: 0 0 3px #646cff;/* subtle glow */
+}
+
+.login-btn {
+    margin-top: 0px;
+}
+
+.login-header {
+    font-size: 3.2em;
+    line-height: 0.3;
+}

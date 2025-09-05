@@ -6,6 +6,7 @@
 }
 
 .log-time-btn {
-  width: 330px;
+  width: 70vw;
+  max-width: 330px;
   height: 80px;
 }
