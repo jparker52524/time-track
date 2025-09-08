@@ -114,6 +114,30 @@
   background-color: #dc3545; /* red */
 }
 
+/* Position the extra action buttons above the Start/Stop button */
+.action-btn-container {
+  position: fixed;
+  bottom: 135px;           /* sits above the log-time-btn (80px tall + ~40px gap) */
+  left: 50%;
+  transform: translateX(-50%);
+  
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 70vw;
+  max-width: 365px;
+}
+
+
+.action-btn {
+  width: 70vw;
+  max-width: 365px;
+  height: 60px;
+  border: 2px solid black;
+  color: black;
+  gap: 5px;
+}
+
 .status-msg {
   margin-bottom: 8px;  /* space between status and button */
   font-size: 0.9rem;

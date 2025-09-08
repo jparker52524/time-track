@@ -131,6 +131,13 @@ function JobPage({ user }) {
         <div className="job-page-label">Job Description:</div>
         <p className="job-description-box">{job.description}</p>
       </div>
+      <div className="action-btn-container">
+        <button className="action-btn">Add Note</button>
+        <button className="action-btn">Add Cost</button>
+        <button className="action-btn">Add Attachment</button>
+      </div>
+      <div>
+      </div>
         <div className="log-time-container">
         {statusMessage && (
             <p className="status-msg" style={{ color: statusColor }}>

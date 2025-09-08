@@ -36,10 +36,36 @@ CREATE TABLE jobs (
     org_id INT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     location TEXT,
-    notes TEXT,
-    attachments TEXT[],
     due_date DATE,
     description TEXT
+);
+
+-- this is where job notes will be stored
+CREATE TABLE job_notes (
+    id SERIAL PRIMARY KEY,
+    job_id INT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(id) ON DELETE SET NULL, -- who wrote it
+    note TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- this is where job attachments will be stored
+CREATE TABLE job_attachments (
+    id SERIAL PRIMARY KEY,
+    job_id INT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    file_url TEXT NOT NULL,
+    file_name TEXT,
+    uploaded_by INT REFERENCES users(id) ON DELETE SET NULL,
+    uploaded_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- this is where job costs will be stored
+CREATE TABLE job_costs (
+    id SERIAL PRIMARY KEY,
+    job_id INT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    description TEXT,
+    amount NUMERIC(12,2) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- this is where users will be assigned jobs
