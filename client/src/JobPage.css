@@ -6,6 +6,8 @@
   width: 70vw;
   max-width: 360px;
   position: relative;
+
+  padding-top: 60px;
 }
 
 .btn-container {

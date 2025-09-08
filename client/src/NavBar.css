@@ -11,6 +11,7 @@
   justify-content: center;  /* centers children horizontally */
   align-items: center;      /* vertical center */
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 9999; 
 }
 
 .navbar-btn-container {
@@ -81,6 +82,7 @@
   cursor: pointer;
   transition: border-color 0.25s;
   border: 2px, solid #646cff;
+  background-color: #f9f9f9;
 }
 
 .back-btn:hover {
@@ -90,15 +92,26 @@
 
 /* Media query: screens 425px and below */
 @media (max-width: 440px) {
+  .navbar-container {
+    height: 80px;
+  }
   .logout-text {
     display: none; /* hide text */
   }
   .logout-icon {
     display: inline; /* show icon */
+    font-size: 3rem;
   }
 
   .logout-btn {
     padding: 8px; /* smaller padding since only icon */
     border-radius: 50%; /* optional: make it circular */
+    height: 60px;
+    width: 60px;
   }
+
+  .back-btn {
+  height: 60px;
+  width: 120px;
+}
 }
