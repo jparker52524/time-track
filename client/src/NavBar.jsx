@@ -13,10 +13,15 @@ function NavBar() {
 
     return <>
         <div className="navbar-container">
+            <div className="navbar-btn-container">
+                  <div className="btn-container">
+                    <button className="back-btn" onClick={() => navigate("/JobsListPage")}>Back</button>
+                 </div>
                  <button className="logout-btn" onClick={handleLogoutClick}>
                     <span className="logout-text">LOGOUT</span>
                     <FiLogOut className="logout-icon" />
                 </button>
+            </div>
         </div>
     </>
 }

@@ -1,4 +1,18 @@
+.jobsListPage{
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center horizontally */
+  min-height: 80vh;
+  position: relative;
+}
+
 .JobsListPage-header {
-    font-size: 3.2em;
-    line-height: 1.1;
+    font-size: 3.3rem;
+    line-height: 0.2;
+}
+
+.job-page-header {
+    font-size: 2.1rem;
+    width: 300px;
+    line-height: 0.2;
 }

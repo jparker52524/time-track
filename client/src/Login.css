@@ -1,3 +1,11 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center horizontally */
+  min-height: 50vh;
+  position: relative;
+}
+
 .login-container {
     display: flex;
     flex-direction: column;
@@ -12,9 +20,10 @@
     padding: 8px 12px;          /* space inside */
     border: 1px solid #ccc;     /* light gray border */
     border-radius: 4px;         /* slight rounded corners */
-    font-size: 16px;            /* readable text */
+    font-size: 18px;            /* readable text */
     outline: none;  
     margin-bottom: 10px;
+    width: 90%;
 }
 
 .login-input:focus {
@@ -24,6 +33,7 @@
 
 .login-btn {
     margin-top: 0px;
+    font-size: 18px;
 }
 
 .login-header {

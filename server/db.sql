@@ -37,7 +37,9 @@ CREATE TABLE jobs (
     name TEXT NOT NULL,
     location TEXT,
     notes TEXT,
-    attachments TEXT[]
+    attachments TEXT[],
+    due_date DATE,
+    description TEXT
 );
 
 -- this is where users will be assigned jobs

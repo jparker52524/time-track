@@ -46,9 +46,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+/* this makes my start/stop btn have purple border on hover
 button:hover {
   border-color: #646cff;
 }
+*/
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;

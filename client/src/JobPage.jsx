@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "./api.js";
-import "./App.css";
+import "./JobPage.css";
 
 function JobPage({ user }) {
   const [statusMessage, setStatusMessage] = useState(null);
@@ -33,7 +33,7 @@ function JobPage({ user }) {
   const startMutation = useMutation({
     mutationFn: () => api.post(`/jobs/${id}/start`),
     onSuccess: () => {
-      setStatusMessage("✅ Job started");
+      setStatusMessage("✅ Time Started");
       setStatusColor("green");
       setIsRunningLocal(true);
       queryClient.invalidateQueries(["jobStatus", id, user?.id]);
@@ -48,7 +48,7 @@ function JobPage({ user }) {
   const stopMutation = useMutation({
     mutationFn: () => api.post(`/jobs/${id}/stop`),
     onSuccess: () => {
-      setStatusMessage("✅ Job stopped");
+      setStatusMessage("✅ Time Stopped");
       setStatusColor("green");
       setIsRunningLocal(false);
       queryClient.invalidateQueries(["jobStatus", id, user?.id]);
@@ -109,31 +109,50 @@ function JobPage({ user }) {
     return () => window.removeEventListener("online", flushQueue);
   }, [id, queryClient, user?.id]);
 
+  // Makes status message dissapear after 3 seconds
+  useEffect(() => {
+    if (statusMessage) {
+      const timer = setTimeout(() => {
+        setStatusMessage(null);
+      }, 3000); // 3 seconds
+
+      return () => clearTimeout(timer); // cleanup if message changes earlier
+    }
+  }, [statusMessage]);
+
   if (isLoading) return <div>Loading job...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
-  const isRunning = log && !log.end_time;
-
   return (
-    <div>
-      <button onClick={() => navigate("/JobsListPage")}>Back</button>
-      <h2>{job.name}</h2>
-      <h1>Time Tracker</h1>
-      <button
-        className="log-time-btn"
-        onClick={handleClick}
-        disabled={startMutation.isLoading || stopMutation.isLoading}
-      >
-        {startMutation.isLoading || stopMutation.isLoading
-          ? "Saving..."
-          : isRunningLocal
-          ? "Stop"
-          : "Start"}
-      </button>
+    <div className="JobPage">
+      <h1 className="job-page-header">{job.name}</h1>
+      <div className="job-description-wrapper">
+        <div className="job-page-label">Job Location:</div>
+        <p className="job-location-box">{job.location}</p>
+      </div>
+      <div className="job-description-wrapper">
+        <div className="job-page-label">Job Description:</div>
+        <p className="job-description-box">{job.description}</p>
+      </div>
+        <div className="log-time-container">
+        {statusMessage && (
+            <p className="status-msg" style={{ color: statusColor }}>
+            {statusMessage}
+            </p>
+        )}
 
-      {statusMessage && (
-        <p style={{ color: statusColor }}>{statusMessage}</p>
-      )}
+        <button
+            className={`log-time-btn ${isRunningLocal ? "stop" : "start"}`}
+            onClick={handleClick}
+            disabled={startMutation.isLoading || stopMutation.isLoading}
+        >
+            {startMutation.isLoading || stopMutation.isLoading
+            ? "Saving..."
+            : isRunningLocal
+            ? "Stop Time"
+            : "Start Time"}
+        </button>
+        </div>
     </div>
   );
 }

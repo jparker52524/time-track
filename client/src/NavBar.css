@@ -5,11 +5,21 @@
   width: 100vw;
   min-width: 320px;
   height: 50px;
+  padding: 0 1rem;
   background-color: white;
   display: flex;
-  justify-content: center;      /* center the group of links */
-  align-items: center;          /* vertical center */
+  justify-content: center;  /* centers children horizontally */
+  align-items: center;      /* vertical center */
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.navbar-btn-container {
+  display: flex;
+  width: 100%;               /* take full navbar width */
+  max-width: 400px;          /* optional max width */
+  justify-content: center;    /* center back button */
+  align-items: center;
+  gap: 1rem;                 /* space between buttons if needed */
 }
 
 .navbar-link {
@@ -36,7 +46,7 @@
 
 .logout-btn {
   position: absolute;   /* take it out of the flex center flow */
-  right: 20px;          /* offset from right edge */
+  right: 40px;          /* offset from right edge */
   top: 50%;             /* vertical center reference */
   transform: translateY(-50%); /* true vertical center */
   
@@ -65,6 +75,17 @@
 
 .logout-text {
   display: inline; /* visible by default */
+}
+
+.back-btn {
+  cursor: pointer;
+  transition: border-color 0.25s;
+  border: 2px, solid #646cff;
+}
+
+.back-btn:hover {
+    color:white;
+    background-color: #646cff;
 }
 
 /* Media query: screens 425px and below */

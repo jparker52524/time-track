@@ -25,6 +25,7 @@ function LoginPage({ onLogin }) {
     };
 
     return (<>
+    <div className="login-page">
       <h1 className="login-header">Login</h1>
       <div className="login-container">
       <form onSubmit={handleSubmit}>
@@ -50,6 +51,7 @@ function LoginPage({ onLogin }) {
         </button>
       </form>
       </div>
+    </div>
     </>)
 }
 
