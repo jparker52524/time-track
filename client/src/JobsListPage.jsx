@@ -57,8 +57,12 @@ function JobsListPage({ user }) {
                 return (
                     <NavLink key={job.id} to={`/JobPage/${job.id}`}>
                     <li>
-                        <strong>{job.name}</strong> – {job.location || "No location"}{" "}
+                        <div className="ts">
+                        <div>
+                        <strong>{job.name}</strong>
+                        </div> – {job.location || "No location"}{" "}
                         {formattedDate && <em>({formattedDate})</em>}
+                        </div>
                     </li>
                     </NavLink>
                 );
