@@ -8,28 +8,34 @@ import "./App.css";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [rehydrated, setRehydrated] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+    setRehydrated(true); // done checking
   }, []);
 
   const Layout = () => (
     <>
-      <NavBar user={user}/>
+      <NavBar user={user} />
       <Outlet />
     </>
   );
 
-  return (<>
+  if (!rehydrated) {
+    return <div>Loading...</div>; // or spinner
+  }
+
+  return (
     <BrowserRouter>
       <Routes>
         {/* Public login page */}
         <Route path="/" element={<LoginPage onLogin={setUser} />} />
 
-        {/* Protected routes with navbar */}
+        {/* Protected routes */}
         <Route element={<Layout />}>
           <Route
             path="/JobsListPage"
@@ -42,7 +48,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-  </>);
+  );
 }
 
 export default App;

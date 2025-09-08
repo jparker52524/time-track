@@ -126,10 +126,7 @@ function JobPage({ user }) {
   return (
     <div className="JobPage">
       <h1 className="job-page-header">{job.name}</h1>
-      <div className="job-description-wrapper">
-        <div className="job-page-label">Job Location:</div>
-        <p className="job-location-box">{job.location}</p>
-      </div>
+        <p className="job-location">{job.location}</p>
       <div className="job-description-wrapper">
         <div className="job-page-label">Job Description:</div>
         <p className="job-description-box">{job.description}</p>

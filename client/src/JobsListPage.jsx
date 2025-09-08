@@ -60,7 +60,7 @@ function JobsListPage({ user }) {
                         <div className="ts">
                         <div>
                         <strong>{job.name}</strong>
-                        </div> – {job.location || "No location"}{" "}
+                        </div> {job.location || "No location"}{" "}
                         {formattedDate && <em>({formattedDate})</em>}
                         </div>
                     </li>
