@@ -55,7 +55,7 @@
   align-items: center;
   gap: 6px;
 
-  background: rgba(175, 0, 0, 0.75);
+  background: rgba(232, 12, 12, 0.95);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -81,19 +81,20 @@
 .back-btn {
   cursor: pointer;
   transition: border-color 0.25s;
-  border: 2px, solid #646cff;
+  border: 2px, solid blue;
   background-color: #f9f9f9;
+  color: blue;
 }
 
 .back-btn:hover {
     color:white;
-    background-color: #646cff;
+    background-color: blue;
 }
 
 /* Media query: screens 425px and below */
 @media (max-width: 440px) {
   .navbar-container {
-    height: 80px;
+    height: 60px;
   }
   .logout-text {
     display: none; /* hide text */
@@ -106,12 +107,12 @@
   .logout-btn {
     padding: 8px; /* smaller padding since only icon */
     border-radius: 50%; /* optional: make it circular */
-    height: 60px;
-    width: 60px;
+    height: 50px;
+    width: 50px;
   }
 
   .back-btn {
-  height: 60px;
-  width: 120px;
+  height: 50px;
+  width: 100px;
 }
 }
