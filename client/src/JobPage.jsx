@@ -12,6 +12,45 @@ function JobPage({ user }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  // state for modal
+    const [isNotesOpen, setNotesOpen] = useState(false);
+    const [isCostsOpen, setCostsOpen] = useState(false);
+    const [isAttachmentsOpen, setAttachmentsOpen] = useState(false);
+
+    const [notes, setNotes] = useState(["Initial note"]);
+    const [newNote, setNewNote] = useState("");
+
+    const [costs, setCosts] = useState([{ text: "Welding machine rental", amount: 1200 }]);
+    const [newCostText, setNewCostText] = useState("");
+    const [newCostAmount, setNewCostAmount] = useState("");
+
+    const [attachments, setAttachments] = useState([
+      { header: "Blueprint", url: "https://example.com/blueprint.png" },
+    ]);
+    const [newAttachHeader, setNewAttachHeader] = useState("");
+    const [newAttachUrl, setNewAttachUrl] = useState("");
+
+     // Handlers
+  const addNote = () => {
+    if (!newNote.trim()) return;
+    setNotes([...notes, newNote]);
+    setNewNote("");
+  };
+
+  const addCost = () => {
+    if (!newCostText.trim() || !newCostAmount) return;
+    setCosts([...costs, { text: newCostText, amount: parseFloat(newCostAmount) }]);
+    setNewCostText("");
+    setNewCostAmount("");
+  };
+
+  const addAttachment = () => {
+    if (!newAttachHeader.trim() || !newAttachUrl.trim()) return;
+    setAttachments([...attachments, { header: newAttachHeader, url: newAttachUrl }]);
+    setNewAttachHeader("");
+    setNewAttachUrl("");
+  };
+
   // ✅ Fetch job details
   const { data: job, isLoading, isError, error } = useQuery({
     queryKey: ["job", id],
@@ -123,6 +162,23 @@ function JobPage({ user }) {
   if (isLoading) return <div>Loading job...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
+  // Simple reusable modal
+  function Modal({ title, isOpen, onClose, children }) {
+    if (!isOpen) return null;
+
+    return (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2 className="text-xl font-bold">{title}</h2>
+            <button onClick={onClose} className="text-gray-600 hover:text-black">✕</button>
+          </div>
+          <div className="modal-body">{children}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="JobPage">
       <h1 className="job-page-header">{job.name}</h1>
@@ -131,11 +187,11 @@ function JobPage({ user }) {
         <div className="job-page-label">Job Description:</div>
         <p className="job-description-box">{job.description}</p>
       </div>
-      <div className="action-btn-container">
-        <button className="action-btn">Add Note</button>
-        <button className="action-btn">Add Cost</button>
-        <button className="action-btn">Add Attachment</button>
-      </div>
+        <div className="action-btn-container">
+          <button className="action-btn" onClick={() => setNotesOpen(true)}>Add Note</button>
+          <button className="action-btn" onClick={() => setCostsOpen(true)}>Add Cost</button>
+          <button className="action-btn" onClick={() => setAttachmentsOpen(true)}>Add Attachment</button>
+        </div>
       <div>
       </div>
         <div className="log-time-container">
@@ -157,6 +213,82 @@ function JobPage({ user }) {
             : "Start Time"}
         </button>
         </div>
+    {/* Notes Modal */}
+    <Modal title="Job Notes" isOpen={isNotesOpen} onClose={() => setNotesOpen(false)}>
+      <div className="flex mb-3">
+        <input
+          type="text"
+          value={newNote}
+          onChange={(e) => setNewNote(e.target.value)}
+          placeholder="Enter note..."
+          className="border p-2 flex-1 rounded-l-xl"
+        />
+        <button onClick={addNote} className="bg-blue-500 text-white px-3 rounded-r-xl">Add</button>
+      </div>
+      <div className="max-h-64 overflow-y-auto space-y-2">
+        {notes.map((note, idx) => (
+          <div key={idx} className="border rounded p-2 bg-gray-50">{note}</div>
+        ))}
+      </div>
+    </Modal>
+
+    {/* Costs Modal */}
+    <Modal title="Job Costs" isOpen={isCostsOpen} onClose={() => setCostsOpen(false)}>
+      <div className="flex mb-3 space-x-2">
+        <input
+          type="text"
+          value={newCostText}
+          onChange={(e) => setNewCostText(e.target.value)}
+          placeholder="Description"
+          className="border p-2 flex-1 rounded"
+        />
+        <input
+          type="number"
+          value={newCostAmount}
+          onChange={(e) => setNewCostAmount(e.target.value)}
+          placeholder="Amount"
+          className="border p-2 w-28 rounded"
+        />
+        <button onClick={addCost} className="bg-green-500 text-white px-3 rounded">Add</button>
+      </div>
+      <div className="max-h-64 overflow-y-auto space-y-2">
+        {costs.map((c, idx) => (
+          <div key={idx} className="flex justify-between border rounded p-2 bg-gray-50">
+            <span>{c.text}</span>
+            <span className="font-semibold">${c.amount.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+    </Modal>
+
+    {/* Attachments Modal */}
+    <Modal title="Job Attachments" isOpen={isAttachmentsOpen} onClose={() => setAttachmentsOpen(false)}>
+      <div className="flex mb-3 space-x-2">
+        <input
+          type="text"
+          value={newAttachHeader}
+          onChange={(e) => setNewAttachHeader(e.target.value)}
+          placeholder="Figure header"
+          className="border p-2 flex-1 rounded"
+        />
+        <input
+          type="text"
+          value={newAttachUrl}
+          onChange={(e) => setNewAttachUrl(e.target.value)}
+          placeholder="Image URL"
+          className="border p-2 flex-1 rounded"
+        />
+        <button onClick={addAttachment} className="bg-purple-500 text-white px-3 rounded">Add</button>
+      </div>
+      <div className="max-h-64 overflow-y-auto space-y-2">
+        {attachments.map((a, idx) => (
+          <div key={idx} className="border rounded p-2 bg-gray-50">
+            <div className="font-semibold">{a.header}</div>
+            <a href={a.url} target="_blank" rel="noreferrer" className="text-blue-600 underline">{a.url}</a>
+          </div>
+        ))}
+      </div>
+    </Modal>
     </div>
   );
 }
