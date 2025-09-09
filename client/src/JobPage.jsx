@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "./api.js";
+import Modal from "./Modal.jsx";
 import "./JobPage.css";
 
 function JobPage({ user }) {
@@ -17,10 +18,17 @@ function JobPage({ user }) {
     const [isCostsOpen, setCostsOpen] = useState(false);
     const [isAttachmentsOpen, setAttachmentsOpen] = useState(false);
 
-    const [notes, setNotes] = useState(["Initial note"]);
-    const [newNote, setNewNote] = useState("");
+    const { data: notes } = useQuery({
+      queryKey: ["notes", id],
+      queryFn: () => api.get(`/jobs/${id}/notes`)
+    })
+   const [newNote, setNewNote] = useState("");
 
-    const [costs, setCosts] = useState([{ text: "Welding machine rental", amount: 1200 }]);
+   const { data: costs } = useQuery({
+    queryKey: ["costs", id],
+    queryFn: () => api.get(`/jobs/${id}/costs`)
+   })
+   console.log(costs);
     const [newCostText, setNewCostText] = useState("");
     const [newCostAmount, setNewCostAmount] = useState("");
 
@@ -29,19 +37,34 @@ function JobPage({ user }) {
     ]);
     const [newAttachHeader, setNewAttachHeader] = useState("");
     const [newAttachUrl, setNewAttachUrl] = useState("");
+    // state for modal end
 
-     // Handlers
+     // handlers for modal
+     const addNoteMutation = useMutation({
+      mutationFn: (newNote) => api.post(`/jobs/${id}/notes`, newNote),
+      onSuccess: () => {
+        queryClient.invalidateQueries(["notes", id]);
+        setNewNote("")
+      }
+     });
+
   const addNote = () => {
     if (!newNote.trim()) return;
-    setNotes([...notes, newNote]);
-    setNewNote("");
+    addNoteMutation.mutate({ userId: user.id, note: newNote });
   };
+
+  const addCostMutation = useMutation({
+    mutationFn: (newCost) => api.post(`/jobs/${id}/costs`, newCost),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["costs", id]);
+      setNewCostText("");
+      setNewCostAmount("");
+    }
+  })
 
   const addCost = () => {
     if (!newCostText.trim() || !newCostAmount) return;
-    setCosts([...costs, { text: newCostText, amount: parseFloat(newCostAmount) }]);
-    setNewCostText("");
-    setNewCostAmount("");
+    addCostMutation.mutate({ description: newCostText, amount: parseFloat(newCostAmount) });
   };
 
   const addAttachment = () => {
@@ -50,6 +73,7 @@ function JobPage({ user }) {
     setNewAttachHeader("");
     setNewAttachUrl("");
   };
+  // handlers for modal
 
   // ✅ Fetch job details
   const { data: job, isLoading, isError, error } = useQuery({
@@ -162,23 +186,6 @@ function JobPage({ user }) {
   if (isLoading) return <div>Loading job...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
-  // Simple reusable modal
-  function Modal({ title, isOpen, onClose, children }) {
-    if (!isOpen) return null;
-
-    return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h2 className="text-xl font-bold">{title}</h2>
-            <button onClick={onClose} className="text-gray-600 hover:text-black">✕</button>
-          </div>
-          <div className="modal-body">{children}</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="JobPage">
       <h1 className="job-page-header">{job.name}</h1>
@@ -226,8 +233,8 @@ function JobPage({ user }) {
         <button onClick={addNote} className="bg-blue-500 text-white px-3 rounded-r-xl">Add</button>
       </div>
       <div className="max-h-64 overflow-y-auto space-y-2">
-        {notes.map((note, idx) => (
-          <div key={idx} className="border rounded p-2 bg-gray-50">{note}</div>
+        {notes.map((note) => (
+          <div key={note.id} className="border rounded p-2 bg-gray-50">{note.note}</div>
         ))}
       </div>
     </Modal>
@@ -252,10 +259,10 @@ function JobPage({ user }) {
         <button onClick={addCost} className="bg-green-500 text-white px-3 rounded">Add</button>
       </div>
       <div className="max-h-64 overflow-y-auto space-y-2">
-        {costs.map((c, idx) => (
-          <div key={idx} className="flex justify-between border rounded p-2 bg-gray-50">
-            <span>{c.text}</span>
-            <span className="font-semibold">${c.amount.toFixed(2)}</span>
+        {costs.map((cost) => (
+          <div key={cost.id} className="flex justify-between border rounded p-2 bg-gray-50">
+            <span>{cost.description}</span>
+            <span className="font-semibold">${cost.amount}</span>
           </div>
         ))}
       </div>

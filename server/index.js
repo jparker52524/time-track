@@ -232,6 +232,60 @@ app.post("/timeLog", authenticateToken, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// MODAL START --------------- THIS IS NOT IMPLIMENTED --------------- 
+// Get all notes for a job
+app.get("/jobs/:jobId/notes", async (req, res) => {
+  const { jobId } = req.params;
+  const result = await pool.query(
+    "SELECT n.id, n.note, n.created_at, u.first_name, u.last_name " +
+    "FROM job_notes n " +
+    "LEFT JOIN users u ON n.user_id = u.id " +
+    "WHERE n.job_id = $1 " +
+    "ORDER BY n.created_at DESC",
+    [jobId]
+  );
+  res.json(result.rows);
+});
+
+// Add a note
+app.post("/jobs/:jobId/notes", async (req, res) => {
+  const { jobId } = req.params;
+  const { userId, note } = req.body;
+  const result = await pool.query(
+    "INSERT INTO job_notes (job_id, user_id, note) VALUES ($1, $2, $3) RETURNING *",
+    [jobId, userId, note]
+  );
+  res.json(result.rows[0]);
+});
+
+//Get all costs for a job
+app.get("/jobs/:jobId/costs", async (req, res) => {
+  const { jobId } = req.params;
+  const result = await pool.query(
+    `SELECT id, job_id, description, amount, created_at
+      FROM job_costs
+      WHERE job_id = $1
+      ORDER BY created_at DESC`,
+    [jobId]
+  );
+  res.json(result.rows);
+});
+
+// add a cost
+app.post("/jobs/:jobId/costs", async (req, res) => {
+  const { jobId } = req.params;
+  const { description, amount } = req.body;
+  const result = await pool.query(
+       `INSERT INTO job_costs (job_id, description, amount)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+    [jobId, description, amount]
+  )
+  res.json(result.rows[0]);
+})
+
+// MODAL END --------------- THIS IS NOT IMPLIMENTED --------------- 
 // ROUTES
 
 const PORT = process.env.PORT || 5000;
