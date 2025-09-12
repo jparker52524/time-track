@@ -42,3 +42,24 @@
 .hidden {
   display: none;
 }
+
+.modal-title {
+  font-size: 1.5rem;   /* ~text-xl */
+  font-weight: bold;
+  color: #333;          /* dark gray */
+  margin: 0;
+}
+
+.modal-close {
+  margin-left: auto;
+  color: #666;          /* gray */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: color 0.2s ease-in-out;
+}
+
+.modal-close:hover {
+  color: #000;          /* black on hover */
+}

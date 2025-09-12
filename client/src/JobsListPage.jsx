@@ -1,24 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { api } from "./api.js";
 import "./JobsListPage.css";
 
 function JobsListPage({ user }) {
-    const navigate = useNavigate();
-
     const fetchJobs = async () => {
-        try {
-            if (!user) return [];
+        if (!user) return [];
 
-            // Just call api.get(endpoint); token is already read from localStorage in your wrapper
-            const data = await api.get("/userJobsList");
-            return data;
-        } catch (error) {
-           if (error.message.includes("403")) {
-            navigate("/");
-           } 
-        }
-        
+        // Just call api.get(endpoint); token is already read from localStorage in your wrapper
+        const data = await api.get("/userJobsList");
+        return data;
     };
 
     const { data: jobsList = [], isLoading, isError, error } = useQuery({

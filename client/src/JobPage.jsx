@@ -28,7 +28,6 @@ function JobPage({ user }) {
     queryKey: ["costs", id],
     queryFn: () => api.get(`/jobs/${id}/costs`)
    })
-   console.log(costs);
     const [newCostText, setNewCostText] = useState("");
     const [newCostAmount, setNewCostAmount] = useState("");
 
@@ -81,6 +80,13 @@ function JobPage({ user }) {
     queryFn: () => api.get(`/jobs/${id}`),
     enabled: !!id,
   });
+
+  // // Redirect if forbidden
+  // useEffect(() => {
+  //   if (isError && error.message?.includes("403")) {
+  //     navigate("/");
+  //   }
+  // }, [isError, error, navigate]);
 
   // ✅ Fetch job status for this user (open/closed)
   const { data: log } = useQuery({
@@ -222,19 +228,20 @@ function JobPage({ user }) {
         </div>
     {/* Notes Modal */}
     <Modal title="Job Notes" isOpen={isNotesOpen} onClose={() => setNotesOpen(false)}>
-      <div className="flex mb-3">
+      <div className="modal-input-container">
         <input
           type="text"
           value={newNote}
           onChange={(e) => setNewNote(e.target.value)}
           placeholder="Enter note..."
-          className="border p-2 flex-1 rounded-l-xl"
+          className="modal-input"
         />
-        <button onClick={addNote} className="bg-blue-500 text-white px-3 rounded-r-xl">Add</button>
+        <button onClick={addNote} className="modal-button">Add</button>
       </div>
-      <div className="max-h-64 overflow-y-auto space-y-2">
+
+      <div className="modal-notes">
         {notes.map((note) => (
-          <div key={note.id} className="border rounded p-2 bg-gray-50">{note.note}</div>
+          <div key={note.id} className="modal-note">{note.note}</div>
         ))}
       </div>
     </Modal>

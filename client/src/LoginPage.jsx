@@ -45,7 +45,7 @@ function LoginPage({ onLogin }) {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        {loginMutation.isError && <p>Invalid email or password</p>}
+        {loginMutation.isError && <p className="error">Invalid email or password</p>}
         <button className="login-btn" type="submit" disabled={loginMutation.isLoading}>
           {loginMutation.isLoading ? "Logging in..." : "Login"}
         </button>
