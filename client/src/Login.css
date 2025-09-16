@@ -12,7 +12,7 @@
     gap: 10px;               /* space between inputs */
     width: 300px;            /* optional: fixed width */
     padding: 20px;           /* optional: inner spacing */
-    background-color: #213547;
+    background-color: red; /*#213547*/
     border-radius: 8px;
 }
 

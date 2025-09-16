@@ -235,7 +235,7 @@ app.post("/timeLog", authenticateToken, async (req, res) => {
 
 // MODAL START --------------- THIS IS NOT IMPLIMENTED --------------- 
 // Get all notes for a job
-app.get("/jobs/:jobId/notes", async (req, res) => {
+app.get("/jobs/:jobId/notes", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
   const result = await pool.query(
     "SELECT n.id, n.note, n.created_at, u.first_name, u.last_name " +
@@ -249,7 +249,7 @@ app.get("/jobs/:jobId/notes", async (req, res) => {
 });
 
 // Add a note
-app.post("/jobs/:jobId/notes", async (req, res) => {
+app.post("/jobs/:jobId/notes", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
   const { userId, note } = req.body;
   const result = await pool.query(
@@ -260,7 +260,7 @@ app.post("/jobs/:jobId/notes", async (req, res) => {
 });
 
 //Get all costs for a job
-app.get("/jobs/:jobId/costs", async (req, res) => {
+app.get("/jobs/:jobId/costs", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
   const result = await pool.query(
     `SELECT id, job_id, description, amount, created_at
@@ -273,7 +273,7 @@ app.get("/jobs/:jobId/costs", async (req, res) => {
 });
 
 // add a cost
-app.post("/jobs/:jobId/costs", async (req, res) => {
+app.post("/jobs/:jobId/costs", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
   const { description, amount } = req.body;
   const result = await pool.query(
