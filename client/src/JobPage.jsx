@@ -240,7 +240,7 @@ function JobPage({ user }) {
       </div>
 
       <div className="modal-notes">
-        {notes.map((note) => (
+        {note && notes.map((note) => (
           <div key={note.id} className="modal-note">{note.note}</div>
         ))}
       </div>
@@ -266,7 +266,7 @@ function JobPage({ user }) {
         <button onClick={addCost} className="bg-green-500 text-white px-3 rounded">Add</button>
       </div>
       <div className="max-h-64 overflow-y-auto space-y-2">
-        {costs.map((cost) => (
+        {costs && costs.map((cost) => (
           <div key={cost.id} className="flex justify-between border rounded p-2 bg-gray-50">
             <span>{cost.description}</span>
             <span className="font-semibold">${cost.amount}</span>
@@ -295,7 +295,7 @@ function JobPage({ user }) {
         <button onClick={addAttachment} className="bg-purple-500 text-white px-3 rounded">Add</button>
       </div>
       <div className="max-h-64 overflow-y-auto space-y-2">
-        {attachments.map((a, idx) => (
+        {attachments && attachments.map((a, idx) => (
           <div key={idx} className="border rounded p-2 bg-gray-50">
             <div className="font-semibold">{a.header}</div>
             <a href={a.url} target="_blank" rel="noreferrer" className="text-blue-600 underline">{a.url}</a>
