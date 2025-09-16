@@ -240,7 +240,7 @@ function JobPage({ user }) {
       </div>
 
       <div className="modal-notes">
-        {note && notes.map((note) => (
+        {notes && notes.map((note) => (
           <div key={note.id} className="modal-note">{note.note}</div>
         ))}
       </div>
