@@ -90,6 +90,63 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
+//Create a job (ADMIN)
+app.post("/jobs", authenticateToken, async (req, res) => {
+  console.log("📥 Received req.body:", req.body);
+  const { orgId, jobTitle, jobLocation, jobDescription, jobDueDate, assignedUserIds = [] } = req.body;
+
+  // Destructure user info from the token
+  const { id: userId } = req.user;
+
+  if (!orgId || !jobTitle) {
+    return res.status(400).json({ error: "orgId and jobTitle are required" });
+  }
+
+  try {
+    // 1. Insert job
+    const result = await pool.query(
+      `INSERT INTO jobs (org_id, name, location, due_date, description)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [orgId, jobTitle, jobLocation, jobDueDate || null, jobDescription]
+    );
+
+    const newJob = result.rows[0];
+
+    // 2. Assign the creator and users to the job
+    const allUserIds = new Set([userId, ...assignedUserIds]); // Ensure uniqueness
+    const values = Array.from(allUserIds).map((uid, i) => `($1, $${i + 2})`).join(", ");
+    const params = [newJob.id, ...Array.from(allUserIds)];
+
+    await pool.query(
+      `INSERT INTO job_assignments (job_id, user_id)
+       VALUES ${values}`,
+      params
+    );
+
+    console.log(`✅ Assigned users [${Array.from(allUserIds)}] to job ${newJob.id}`);
+
+    // 3. Respond with the created job
+    res.status(201).json(newJob);
+  } catch (err) {
+    console.error("🔥 Error inserting job:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Get all users in an Org (ADMIN)
+app.get("/orgusers", authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM users WHERE org_id = $1 AND id != $2",
+      [req.user.org_id, req.user.id]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: err.message });  
+  }
+})
+
 //Get all jobs in an Org (ADMIN)
 app.get("/orgJobsList", authenticateToken, async (req, res) => {
   try {
