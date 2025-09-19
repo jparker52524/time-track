@@ -16,6 +16,13 @@ async function request(endpoint, options = {}) {
   const isJson = res.headers.get("content-type")?.includes("application/json");
   const data = isJson ? await res.json().catch(() => null) : null;
 
+  // Only redirect on 403 (unauthorized / token expired)
+  if (res.status === 403) {
+    localStorage.removeItem("token");
+    window.location.href = "/"; // go to login
+    return;
+  }
+
   if (!res.ok) {
     const message = data?.error || res.statusText || "Unknown API error";
     throw new Error(`API Error (${res.status}): ${message}`);

@@ -78,6 +78,7 @@
   display: inline; /* visible by default */
 }
 
+/*
 .back-btn {
   cursor: pointer;
   transition: border-color 0.25s;
@@ -89,6 +90,34 @@
 .back-btn:hover {
     color:white;
     background-color: blue;
+}
+*/
+
+.back-btn {
+  font-size: 18px;
+  padding: 8px 16px;
+  background-color: #0077cc; /* Primary blue */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn:hover {
+  background-color: #005fa3;
+}
+
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+.back-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* Media query: screens 425px and below */

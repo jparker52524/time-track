@@ -12,7 +12,7 @@
     gap: 10px;               /* space between inputs */
     width: 300px;            /* optional: fixed width */
     padding: 20px;           /* optional: inner spacing */
-    background-color: red; /*#213547*/
+    background-color: #213547;
     border-radius: 8px;
 }
 
@@ -31,11 +31,6 @@
   box-shadow: 0 0 3px #646cff;/* subtle glow */
 }
 
-.login-btn {
-    margin-top: 0px;
-    font-size: 18px;
-}
-
 .login-header {
     font-size: 3.2em;
     line-height: 0.3;
@@ -44,4 +39,32 @@
 .error {
   color: white;
   margin-top: 5px;
+}
+
+.login-btn {
+  margin-top: 16px;
+  font-size: 18px;
+  padding: 10px 20px;
+  background-color: #0077cc; /* Primary blue */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.login-btn:hover {
+  background-color: #005fa3;
+}
+
+.login-btn:active {
+  transform: scale(0.98);
+}
+
+.login-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
 }

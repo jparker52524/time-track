@@ -1,9 +1,22 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import { api } from "./api.js";
+import Modal from "./Modal.jsx";
 import "./JobsListPage.css";
 
 function JobsListPage({ user }) {
+    // state for modal
+    const [isAddJobOpen, setAddJobOpen] = useState(false);
+
+    const [jobTitle, setJobTitle] = useState("");
+    const [jobLocation, setJobLocation] = useState("");
+    const [jobDescription, setJobDescription] = useState("");
+    const [jobDueDate, setJobDueDate] = useState("");
+    const [selectedUserIds, setSelectedUserIds] = useState([]);
+
+    const queryClient = useQueryClient();
+    
     const fetchJobs = async () => {
         if (!user) return [];
 
@@ -18,12 +31,47 @@ function JobsListPage({ user }) {
         enabled: !!user,
     });
 
+    const addJobMutation = useMutation({
+      mutationFn: (newJob) => api.post(`/jobs`, newJob),
+      onSuccess: () => {
+        queryClient.invalidateQueries(["jobs", user?.id]);
+        setJobTitle("")
+        setJobLocation("")
+        setJobDescription("")
+        setJobDueDate("")
+        setAddJobOpen(false)
+        setSelectedUserIds([])
+      }
+     });
+
+    function handleAddJob() {
+        addJobMutation.mutate({
+            userId: user.id, 
+            orgId: user.org_id, 
+            jobTitle, 
+            jobLocation, 
+            jobDescription, 
+            jobDueDate,
+            assignedUserIds: selectedUserIds,
+        });
+    }
+
+    const {data: orgUsers = []} = useQuery({
+        queryKey: ["orgUsers", user?.id],
+        queryFn: () => api.get(`/orgusers`)
+    })
+
+    console.log(orgUsers)
+
     if (isLoading) return <div>Loading jobs...</div>;
     if (isError) return <div>Error: {error.message}</div>;
 
     return (
     <div className="jobsListPage">
         <h1 className="JobsListPage-header">Jobs List Page</h1>
+        {user.is_admin && (
+            <button onClick={() => setAddJobOpen(true)}>Add Job</button>
+        )}        
         {jobsList.length === 0 ? (
         <div>No jobs found</div>
         ) : (
@@ -70,6 +118,60 @@ function JobsListPage({ user }) {
             </ul>
         </nav>
         )}
+        <Modal title="Add Job" isOpen={isAddJobOpen} onClose={() => setAddJobOpen(false)}>
+          <div className="jobs-list-modal-input-container">
+            <input
+              type="text"
+              value={jobTitle}
+              onChange={(e) => setJobTitle(e.target.value)}
+              placeholder="Enter Title..."
+              className="jobs-list-modal-input"
+            />
+            <input
+              type="text"
+              value={jobLocation}
+              onChange={(e) => setJobLocation(e.target.value)}
+              placeholder="Enter Location..."
+              className="jobs-list-modal-input"
+            />
+            <input
+              type="text"
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Enter Description..."
+              className="jobs-list-modal-input"
+            />
+            <input
+              type="date"
+              value={jobDueDate}
+              onChange={(e) => setJobDueDate(e.target.value)}
+              className="jobs-list-modal-input"
+            />
+            {/*Map users in org, if clicked on, highlight and assign*/}
+            <div className="user-selection-list">
+            {orgUsers.map((orgUser) => {
+                const isSelected = selectedUserIds.includes(orgUser.id);
+
+                return (
+                <div
+                    key={orgUser.id}
+                    className={`user-item ${isSelected ? "user-item--selected" : ""}`}
+                    onClick={() => {
+                    setSelectedUserIds((prev) =>
+                        isSelected
+                        ? prev.filter((id) => id !== orgUser.id)
+                        : [...prev, orgUser.id]
+                    );
+                    }}
+                >
+                    {orgUser.first_name} {orgUser.last_name}
+                </div>
+                );
+            })}
+            </div>
+            <button onClick={handleAddJob} className="jobs-list-modal-button">Add</button>
+          </div>
+        </Modal>
     </div>
     );
 }

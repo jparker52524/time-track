@@ -196,14 +196,18 @@ function JobPage({ user }) {
     <div className="JobPage">
       <h1 className="job-page-header">{job.name}</h1>
         <p className="job-location">{job.location}</p>
-      <div className="job-description-wrapper">
+      {/*<div className="job-description-wrapper">
         <div className="job-page-label">Job Description:</div>
         <p className="job-description-box">{job.description}</p>
-      </div>
+      </div>*/}
         <div className="action-btn-container">
-          <button className="action-btn" onClick={() => setNotesOpen(true)}>Add Note</button>
-          <button className="action-btn" onClick={() => setCostsOpen(true)}>Add Cost</button>
-          <button className="action-btn" onClick={() => setAttachmentsOpen(true)}>Add Attachment</button>
+          {user.is_admin && (
+            <button className="action-btn" onClick={() => setNotesOpen(true)}>Overview</button>
+          )}
+          <button className="action-btn" onClick={() => setNotesOpen(true)}>Description</button>
+          <button className="action-btn" onClick={() => setNotesOpen(true)}>Notes</button>
+          <button className="action-btn" onClick={() => setCostsOpen(true)}>Costs</button>
+          <button className="action-btn" onClick={() => setAttachmentsOpen(true)}>Attachment</button>
         </div>
       <div>
       </div>

@@ -53,3 +53,58 @@
   justify-content: space-between;
   align-items: center;
 }
+
+/* MODAL CSS */
+.jobs-list-modal-input-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem; /* 12px */
+}
+
+.jobs-list-modal-input {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  flex: 1;
+  border-radius: 0.75rem 0 0 0.75rem; /* rounded-l-xl */
+  font-size: 16px;
+}
+
+.jobs-list-modal-button {
+  background-color: #3b82f6; /* Tailwind's blue-500 */
+  color: white;
+  padding: 0 0.75rem;
+  border: none;
+  border-radius: 0 0.75rem 0.75rem 0;
+  cursor: pointer;
+}
+
+.jobs-list-modal-button:hover {
+  background-color: #2563eb; /* Tailwind's blue-600 */
+}
+
+/* orgUser map and selecting */
+.user-selection-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.user-item {
+  padding: 6px 12px;
+  margin: 4px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.user-item:hover {
+  background-color: #f2f2f2;
+}
+
+.user-item--selected {
+  background-color: #b3d4fc;
+  border-color: #0077cc;
+}
