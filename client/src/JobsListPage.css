@@ -47,13 +47,6 @@
   display: block;   /* makes the whole row clickable */
 }
 
-.ts {
-  font-size: 1.2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 /* MODAL CSS */
 .jobs-list-modal-input-container {
   display: flex;
@@ -108,3 +101,21 @@
   background-color: #b3d4fc;
   border-color: #0077cc;
 }
+
+/* Job list table begin */
+.ts {
+  font-size: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.job-list-edit-btn {
+color: green;
+}
+
+.job-list-delete-btn {
+color: red;
+}
+
+/* Job list table end */

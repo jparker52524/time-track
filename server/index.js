@@ -93,7 +93,7 @@ app.post("/auth/login", async (req, res) => {
 //Create a job (ADMIN)
 app.post("/jobs", authenticateToken, async (req, res) => {
   console.log("📥 Received req.body:", req.body);
-  const { orgId, jobTitle, jobLocation, jobDescription, jobDueDate, assignedUserIds = [] } = req.body;
+  const { orgId, jobTitle, jobLocation, jobDescription, jobAmount, jobDueDate, assignedUserIds = [] } = req.body;
 
   // Destructure user info from the token
   const { id: userId } = req.user;
@@ -105,10 +105,10 @@ app.post("/jobs", authenticateToken, async (req, res) => {
   try {
     // 1. Insert job
     const result = await pool.query(
-      `INSERT INTO jobs (org_id, name, location, due_date, description)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO jobs (org_id, name, location, due_date, description, amount)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [orgId, jobTitle, jobLocation, jobDueDate || null, jobDescription]
+      [orgId, jobTitle, jobLocation, jobDueDate || null, jobDescription, jobAmount]
     );
 
     const newJob = result.rows[0];
@@ -131,6 +131,102 @@ app.post("/jobs", authenticateToken, async (req, res) => {
   } catch (err) {
     console.error("🔥 Error inserting job:", err);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Edit a job (ADMIN)
+app.put("/jobs", authenticateToken, async (req, res) => {
+  console.log("✏️ Received job edit req.body:", req.body);
+  const {
+    id, // job ID to edit
+    orgId,
+    jobTitle,
+    jobLocation,
+    jobDescription,
+    jobAmount,
+    jobDueDate,
+    assignedUserIds = [],
+  } = req.body;
+
+  // Destructure user info from token
+  const { id: userId } = req.user;
+
+  if (!id || !orgId || !jobTitle) {
+    return res.status(400).json({ error: "id, orgId, and jobTitle are required" });
+  }
+
+  try {
+    // 1. Verify job belongs to org
+    const jobCheck = await pool.query(
+      `SELECT * FROM jobs WHERE id = $1 AND org_id = $2`,
+      [id, orgId]
+    );
+
+    if (jobCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Job not found or unauthorized" });
+    }
+
+    // 2. Update job data
+    await pool.query(
+      `UPDATE jobs
+       SET name = $1,
+           location = $2,
+           description = $3,
+           amount = $4,
+           due_date = $5
+       WHERE id = $6`,
+      [jobTitle, jobLocation, jobDescription, jobAmount, jobDueDate || null, id]
+    );
+
+    // 3. Replace job assignments
+    await pool.query(`DELETE FROM job_assignments WHERE job_id = $1`, [id]);
+
+    // Add the updated user assignments (including the user themself if needed)
+    const allUserIds = new Set([userId, ...assignedUserIds]);
+    if (allUserIds.size > 0) {
+      const valueStrings = Array.from(allUserIds)
+        .map((uid, i) => `($1, $${i + 2})`)
+        .join(", ");
+      const values = [id, ...Array.from(allUserIds)];
+
+      await pool.query(
+        `INSERT INTO job_assignments (job_id, user_id) VALUES ${valueStrings}`,
+        values
+      );
+
+      console.log(`✅ Updated assignments for job ${id}:`, Array.from(allUserIds));
+    }
+
+    // 4. Return success
+    res.status(200).json({ message: "Job updated successfully" });
+  } catch (err) {
+    console.error("🔥 Error updating job:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Delete a job (ADMIN)
+app.delete("/jobs/:id", authenticateToken, async (req, res) => {
+  const jobId = req.params.id;
+
+  try {
+    // Optionally: Check if the user has permission to delete this job (e.g., same org or admin)
+    // For now, let's assume the user is authorized if authenticated
+
+    // Delete job assignments automatically due to ON DELETE CASCADE in job_assignments table
+    const result = await pool.query(
+      "DELETE FROM jobs WHERE id = $1 RETURNING *",
+      [jobId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    res.json({ message: "Job deleted successfully", job: result.rows[0] });
+  } catch (err) {
+    console.error("Error deleting job:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 

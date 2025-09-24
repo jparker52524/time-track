@@ -37,7 +37,8 @@ CREATE TABLE jobs (
     name TEXT NOT NULL,
     location TEXT,
     due_date DATE,
-    description TEXT
+    description TEXT,
+    amount NUMERIC(12,2) NOT NULL
 );
 
 -- this is where job notes will be stored
