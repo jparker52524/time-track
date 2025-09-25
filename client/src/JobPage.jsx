@@ -164,6 +164,23 @@ function JobPage({ user }) {
     }
   }
 
+  // check if a job is still running (button will say start or stop)
+  const { data: jobStatusData, isLoading: statusLoading } = useQuery({
+    queryKey: ["jobStatus", id, user?.id],
+    queryFn: async () => {
+      const res = await api.get(`/jobs/${id}/status`);
+      return res.data; // either null or { id, start_time, end_time, ... }
+    },
+    enabled: !!id && !!user?.id,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (jobStatusData !== undefined) {
+      setIsRunningLocal(jobStatusData && jobStatusData.end_time === null);
+    }
+  }, [jobStatusData]);
+
   // ✅ Flush queued actions when back online
   useEffect(() => {
     async function flushQueue() {
