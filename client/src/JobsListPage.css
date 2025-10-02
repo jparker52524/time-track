@@ -119,3 +119,26 @@ color: red;
 }
 
 /* Job list table end */
+
+.nav-header {
+  display: flex;
+  gap: 1rem; /* space between links */
+  align-items: center;
+}
+
+.nav-link {
+  text-decoration: underline;
+  font-weight: normal;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #007bff; /* or any highlight color */
+}
+
+.nav-link.active {
+  font-weight: bold;
+  text-decoration: underline;
+}

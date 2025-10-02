@@ -1,8 +1,15 @@
-import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Outlet,
+  Navigate,
+} from "react-router-dom";
 import { useState, useEffect } from "react";
 import NavBar from "./NavBar.jsx";
 import LoginPage from "./LoginPage.jsx";
 import JobsListPage from "./JobsListPage.jsx";
+import CrewPage from "./CrewPage.jsx";
 import JobPage from "./JobPage.jsx";
 import "./App.css";
 
@@ -40,6 +47,10 @@ function App() {
           <Route
             path="/JobsListPage"
             element={user ? <JobsListPage user={user} /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/CrewPage"
+            element={user ? <CrewPage user={user} /> : <Navigate to="/" />}
           />
           <Route
             path="/JobPage/:id"
