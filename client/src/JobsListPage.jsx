@@ -130,14 +130,16 @@ function JobsListPage({ user }) {
         <NavLink to="/JobsListPage" className="nav-link">
           Job Page
         </NavLink>
-        <NavLink
-          to="/CrewPage"
-          className={({ isActive }) =>
-            isActive ? "nav-link active" : "nav-link"
-          }
-        >
-          Crew Page
-        </NavLink>
+        {user.is_admin && (
+          <NavLink
+            to="/CrewPage"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+          >
+            Crew Page
+          </NavLink>
+        )}
       </h1>
       {user.is_admin && (
         <button onClick={() => setAddJobOpen(true)}>Add Job</button>
