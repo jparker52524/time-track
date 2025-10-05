@@ -27,7 +27,8 @@ CREATE TABLE users (
     last_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    is_admin BOOLEAN NOT NULL DEFAULT FALSE
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+    hourly_rate NUMERIC(10,2) DEFAULT 0
 );
 
 -- this is where job information will be created/stored

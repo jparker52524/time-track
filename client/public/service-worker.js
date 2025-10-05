@@ -1,4 +1,4 @@
-const CACHE_NAME = "time-tracker-cache-v1";
+/*const CACHE_NAME = "time-tracker-cache-v1";
 const urlsToCache = [
   "/",            // index.html
   "/index.html",
@@ -40,4 +40,4 @@ self.addEventListener("fetch", (event) => {
       return response || fetch(event.request);
     })
   );
-});
+});*/
