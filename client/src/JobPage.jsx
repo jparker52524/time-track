@@ -169,7 +169,7 @@ function JobPage({ user }) {
     queryKey: ["jobStatus", id, user?.id],
     queryFn: async () => {
       const res = await api.get(`/jobs/${id}/status`);
-      return res.data; // either null or { id, start_time, end_time, ... }
+      return res; // either null or { id, start_time, end_time, ... }
     },
     enabled: !!id && !!user?.id,
     refetchOnWindowFocus: false,
@@ -229,7 +229,19 @@ function JobPage({ user }) {
       return sum + (isNaN(amount) ? 0 : amount);
     }, 0);
 
-  console.log(totalCost);
+  const formattedTotalCost = totalCost?.toFixed(2) ?? "0.00";
+
+  const { data: laborCosts = [] } = useQuery({
+    queryKey: ["laborCosts", id],
+    queryFn: () => api.get(`/jobs/${id}/labor-costs`),
+    enabled: !!id,
+  });
+
+  const totalLaborCost = laborCosts.reduce((sum, user) => {
+    return sum + (parseFloat(user.labor_cost) || 0);
+  }, 0);
+
+  const formattedTotalLaborCost = totalLaborCost.toFixed(2);
 
   if (isLoading) return <div>Loading job...</div>;
   if (isError) return <div>Error: {error.message}</div>;
@@ -287,9 +299,20 @@ function JobPage({ user }) {
         isOpen={isOverviewOpen}
         onClose={() => setOverviewOpen(false)}
       >
-        <div className="modal-input-container">Amount: {job.amount}</div>
-        <div className="modal-input-container">Material Cost: {totalCost}</div>
-        <div className="modal-input-container">Labor Cost:</div>
+        <div className="modal-input-container">
+          Profit: ${job.amount - formattedTotalCost - formattedTotalLaborCost}
+        </div>
+        <div className="modal-input-container">Amount: ${job.amount}</div>
+        <div className="modal-input-container">
+          Total Cost: $
+          {parseFloat(formattedTotalCost) + parseFloat(formattedTotalLaborCost)}
+        </div>
+        <div className="modal-input-container">
+          Material Cost: ${formattedTotalCost}
+        </div>
+        <div className="modal-input-container">
+          Labor Cost: ${formattedTotalLaborCost}
+        </div>
       </Modal>
 
       {/* Description Modal */}

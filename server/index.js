@@ -1,15 +1,17 @@
 //CONFIG START
-require('dotenv').config();
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const cors = require('cors');
-const { Pool } = require('pg');
+const cors = require("cors");
+const { Pool } = require("pg");
 
 const app = express();
-app.use(cors({
-  origin: process.env.CORS_ORIGIN
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+  })
+);
 app.use(express.json());
 
 const poolConfig = {
@@ -17,7 +19,10 @@ const poolConfig = {
 };
 
 // Only add SSL settings if we're NOT on local
-if (process.env.DATABASE_URL !== "postgresql://postgres:password@localhost:5432/time_tracker_db") {
+if (
+  process.env.DATABASE_URL !==
+  "postgresql://postgres:password@localhost:5432/time_tracker_db"
+) {
   poolConfig.ssl = { rejectUnauthorized: false };
 }
 
@@ -66,7 +71,12 @@ app.post("/auth/login", async (req, res) => {
     }
     // 3. sign token
     const token = jwt.sign(
-      { id: user.id, org_id: user.org_id, email: user.email, is_admin: user.is_admin },
+      {
+        id: user.id,
+        org_id: user.org_id,
+        email: user.email,
+        is_admin: user.is_admin,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "12h" }
     );
@@ -93,7 +103,15 @@ app.post("/auth/login", async (req, res) => {
 //Create a job (ADMIN)
 app.post("/jobs", authenticateToken, async (req, res) => {
   console.log("📥 Received req.body:", req.body);
-  const { orgId, jobTitle, jobLocation, jobDescription, jobAmount, jobDueDate, assignedUserIds = [] } = req.body;
+  const {
+    orgId,
+    jobTitle,
+    jobLocation,
+    jobDescription,
+    jobAmount,
+    jobDueDate,
+    assignedUserIds = [],
+  } = req.body;
 
   // Destructure user info from the token
   const { id: userId } = req.user;
@@ -108,14 +126,23 @@ app.post("/jobs", authenticateToken, async (req, res) => {
       `INSERT INTO jobs (org_id, name, location, due_date, description, amount)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [orgId, jobTitle, jobLocation, jobDueDate || null, jobDescription, jobAmount]
+      [
+        orgId,
+        jobTitle,
+        jobLocation,
+        jobDueDate || null,
+        jobDescription,
+        jobAmount,
+      ]
     );
 
     const newJob = result.rows[0];
 
     // 2. Assign the creator and users to the job
     const allUserIds = new Set([userId, ...assignedUserIds]); // Ensure uniqueness
-    const values = Array.from(allUserIds).map((uid, i) => `($1, $${i + 2})`).join(", ");
+    const values = Array.from(allUserIds)
+      .map((uid, i) => `($1, $${i + 2})`)
+      .join(", ");
     const params = [newJob.id, ...Array.from(allUserIds)];
 
     await pool.query(
@@ -124,7 +151,9 @@ app.post("/jobs", authenticateToken, async (req, res) => {
       params
     );
 
-    console.log(`✅ Assigned users [${Array.from(allUserIds)}] to job ${newJob.id}`);
+    console.log(
+      `✅ Assigned users [${Array.from(allUserIds)}] to job ${newJob.id}`
+    );
 
     // 3. Respond with the created job
     res.status(201).json(newJob);
@@ -152,7 +181,9 @@ app.put("/jobs", authenticateToken, async (req, res) => {
   const { id: userId } = req.user;
 
   if (!id || !orgId || !jobTitle) {
-    return res.status(400).json({ error: "id, orgId, and jobTitle are required" });
+    return res
+      .status(400)
+      .json({ error: "id, orgId, and jobTitle are required" });
   }
 
   try {
@@ -194,7 +225,10 @@ app.put("/jobs", authenticateToken, async (req, res) => {
         values
       );
 
-      console.log(`✅ Updated assignments for job ${id}:`, Array.from(allUserIds));
+      console.log(
+        `✅ Updated assignments for job ${id}:`,
+        Array.from(allUserIds)
+      );
     }
 
     // 4. Return success
@@ -239,18 +273,47 @@ app.get("/orgusers", authenticateToken, async (req, res) => {
     );
     res.json(result.rows);
   } catch (error) {
-    res.status(500).json({ error: err.message });  
+    res.status(500).json({ error: err.message });
   }
-})
+});
+
+app.patch("/users/:id", async (req, res) => {
+  const userId = req.params.id;
+  const { hourly_rate } = req.body;
+
+  console.log(`➡️ PATCH /users/${userId} with hourly_rate =`, hourly_rate);
+
+  if (typeof hourly_rate !== "number" || hourly_rate < 0) {
+    console.log("❌ Invalid input");
+    return res.status(400).json({ error: "Invalid hourly_rate" });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE users SET hourly_rate = $1 WHERE id = $2 RETURNING *`,
+      [hourly_rate, userId]
+    );
+
+    if (result.rows.length === 0) {
+      console.log("❌ User not found");
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    console.log("✅ Wage updated:", result.rows[0]);
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("🔥 Error updating wage:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 //Get all jobs in an Org (ADMIN)
 app.get("/orgJobsList", authenticateToken, async (req, res) => {
   try {
     // Now you can use req.user.org_id to filter jobs
-    const result = await pool.query(
-      "SELECT * FROM jobs WHERE org_id = $1",
-      [req.user.org_id]
-    );
+    const result = await pool.query("SELECT * FROM jobs WHERE org_id = $1", [
+      req.user.org_id,
+    ]);
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -293,7 +356,7 @@ app.get(`/jobs/:id`, authenticateToken, async (req, res) => {
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Error fetching job:", error);
-    res.status(500).json({ error: "Server error fetching job" })
+    res.status(500).json({ error: "Server error fetching job" });
   }
 });
 
@@ -381,21 +444,21 @@ app.post("/timeLog", authenticateToken, async (req, res) => {
     console.log("Inserted row:", result.rows[0]);
     res.json({ success: true });
   } catch (err) {
-    console.error("DB error:", err.message);   // 👈 show real error
+    console.error("DB error:", err.message); // 👈 show real error
     res.status(500).json({ error: err.message });
   }
 });
 
-// MODAL START --------------- THIS IS NOT IMPLIMENTED --------------- 
+// MODAL START --------------- THIS IS NOT IMPLIMENTED ---------------
 // Get all notes for a job
 app.get("/jobs/:jobId/notes", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
   const result = await pool.query(
     "SELECT n.id, n.note, n.created_at, u.first_name, u.last_name " +
-    "FROM job_notes n " +
-    "LEFT JOIN users u ON n.user_id = u.id " +
-    "WHERE n.job_id = $1 " +
-    "ORDER BY n.created_at DESC",
+      "FROM job_notes n " +
+      "LEFT JOIN users u ON n.user_id = u.id " +
+      "WHERE n.job_id = $1 " +
+      "ORDER BY n.created_at DESC",
     [jobId]
   );
   res.json(result.rows);
@@ -430,15 +493,42 @@ app.post("/jobs/:jobId/costs", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
   const { description, amount } = req.body;
   const result = await pool.query(
-       `INSERT INTO job_costs (job_id, description, amount)
+    `INSERT INTO job_costs (job_id, description, amount)
        VALUES ($1, $2, $3)
        RETURNING *`,
     [jobId, description, amount]
-  )
+  );
   res.json(result.rows[0]);
-})
+});
 
-// MODAL END --------------- THIS IS NOT IMPLIMENTED --------------- 
+// GET /jobs/:jobId/labor-costs
+app.get("/jobs/:jobId/labor-costs", authenticateToken, async (req, res) => {
+  const { jobId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT
+         jt.user_id,
+         u.first_name,
+         u.last_name,
+         u.hourly_rate,
+         SUM(EXTRACT(EPOCH FROM (jt.end_time - jt.start_time)) / 3600.0) AS total_hours,
+         SUM((EXTRACT(EPOCH FROM (jt.end_time - jt.start_time)) / 3600.0) * u.hourly_rate) AS labor_cost
+       FROM job_times jt
+       JOIN users u ON jt.user_id = u.id
+       WHERE jt.job_id = $1 AND jt.start_time IS NOT NULL AND jt.end_time IS NOT NULL
+       GROUP BY jt.user_id, u.first_name, u.last_name, u.hourly_rate`,
+      [jobId]
+    );
+
+    res.json(result.rows); // return array of user labor costs
+  } catch (error) {
+    console.error("Error fetching labor costs:", error);
+    res.status(500).json({ error: "Failed to calculate labor cost" });
+  }
+});
+
+// MODAL END --------------- THIS IS NOT IMPLIMENTED ---------------
 // ROUTES
 
 const PORT = process.env.PORT || 5000;

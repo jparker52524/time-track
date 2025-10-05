@@ -1,17 +1,46 @@
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
+// CrewPage.jsx
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import { api } from "./api.js";
 import "./CrewPage.css";
 import "./JobsListPage.css";
 
 function CrewPage({ user }) {
+  const queryClient = useQueryClient();
+
+  // Fetch org users
   const { data: orgUsers = [] } = useQuery({
     queryKey: ["orgUsers", user?.id],
-    queryFn: () => api.get(`/orgusers`),
+    queryFn: () => api.get(`/orgusers`), // assume this returns org users with hourly_rate
   });
 
-  //need to change wage here
+  // Local state for tracking wage edits
+  const [wages, setWages] = useState({});
+
+  // Mutation for updating the wage
+  const updateWageMutation = useMutation({
+    mutationFn: ({ id, hourly_rate }) =>
+      api.patch(`/users/${id}`, { hourly_rate }), // PATCH to /users/:id
+    onSuccess: () => {
+      queryClient.invalidateQueries(["orgUsers", user?.id]); // Refetch data
+    },
+  });
+
+  const handleWageChange = (id, value) => {
+    setWages((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleSave = (id) => {
+    const newWage = wages[id];
+    if (newWage !== undefined && newWage !== "") {
+      console.log("Saving wage for user ID:", id, "New wage:", newWage);
+      updateWageMutation.mutate({ id, hourly_rate: parseFloat(newWage) });
+    }
+  };
 
   return (
     <div className="crewPage">
@@ -34,6 +63,7 @@ function CrewPage({ user }) {
           <tr>
             <th>Name</th>
             <th>Wage</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +72,27 @@ function CrewPage({ user }) {
               <td>
                 {orgUser.first_name} {orgUser.last_name}
               </td>
-              <td>${orgUser.hourly_rate || "N/A"}</td>
+              <td>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={
+                    wages[orgUser.id] !== undefined
+                      ? wages[orgUser.id]
+                      : orgUser.hourly_rate || ""
+                  }
+                  onChange={(e) => handleWageChange(orgUser.id, e.target.value)}
+                  placeholder="Enter wage"
+                />
+              </td>
+              <td>
+                <button
+                  onClick={() => handleSave(orgUser.id)}
+                  disabled={updateWageMutation.isLoading}
+                >
+                  {updateWageMutation.isLoading ? "Saving..." : "Save"}
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
