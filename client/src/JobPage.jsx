@@ -243,6 +243,18 @@ function JobPage({ user }) {
 
   const formattedTotalLaborCost = totalLaborCost.toFixed(2);
 
+  // camera photo upload
+  function handleCameraUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewAttachUrl(reader.result); // Sets the image as a base64 data URL
+    };
+    reader.readAsDataURL(file);
+  }
+
   if (isLoading) return <div>Loading job...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
@@ -401,28 +413,40 @@ function JobPage({ user }) {
         isOpen={isAttachmentsOpen}
         onClose={() => setAttachmentsOpen(false)}
       >
-        <div className="flex mb-3 space-x-2">
+        <div className="flex flex-col mb-3 space-y-2">
           <input
             type="text"
             value={newAttachHeader}
             onChange={(e) => setNewAttachHeader(e.target.value)}
             placeholder="Figure header"
-            className="border p-2 flex-1 rounded"
+            className="border p-2 rounded"
           />
+
           <input
             type="text"
             value={newAttachUrl}
             onChange={(e) => setNewAttachUrl(e.target.value)}
             placeholder="Image URL"
-            className="border p-2 flex-1 rounded"
+            className="border p-2 rounded"
           />
+
+          {/* 📷 Camera / Photo Upload */}
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleCameraUpload}
+            className="border p-2 rounded"
+          />
+
           <button
             onClick={addAttachment}
-            className="bg-purple-500 text-white px-3 rounded"
+            className="bg-purple-500 text-white px-3 py-2 rounded"
           >
             Add
           </button>
         </div>
+
         <div className="max-h-64 overflow-y-auto space-y-2">
           {attachments &&
             attachments.map((a, idx) => (
