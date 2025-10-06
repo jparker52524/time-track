@@ -267,10 +267,9 @@ app.delete("/jobs/:id", authenticateToken, async (req, res) => {
 //Get all users in an Org (ADMIN)
 app.get("/orgusers", authenticateToken, async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT * FROM users WHERE org_id = $1 AND id != $2",
-      [req.user.org_id, req.user.id]
-    );
+    const result = await pool.query("SELECT * FROM users WHERE org_id = $1", [
+      req.user.org_id,
+    ]);
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: err.message });
