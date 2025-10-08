@@ -37,3 +37,21 @@
 .crew-table th {
   background-color: #f4f4f4;
 }
+
+/* Wage input field */
+.crew-table input[type="number"] {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 120px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.crew-table input[type="number"]:focus {
+  border-color: #0077cc;
+  box-shadow: 0 0 3px rgba(0, 119, 204, 0.5);
+  outline: none;
+}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavLink, useNavigate } from "react-router-dom";
 import { api } from "./api.js";
+import { MdEdit, MdDelete } from "react-icons/md";
 import Modal from "./Modal.jsx";
 import "./JobsListPage.css";
 
@@ -150,7 +151,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
             <tr>
               <th>Title</th>
               {/*<th>Location</th>*/}
-              <th>Due Date</th>
+              <th>Due</th>
               {user.is_admin && <th>Actions</th>}
             </tr>
           </thead>
@@ -186,9 +187,9 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
 
                     {user.is_admin && (
                       <td>
-                        <>
+                        <div className="action-icons">
                           <button
-                            className="job-list-edit-btn"
+                            className="icon-btn"
                             onClick={(e) => {
                               e.stopPropagation();
                               setJobBeingEdited(job);
@@ -203,10 +204,10 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
                               setEditJobOpen(true);
                             }}
                           >
-                            Edit
+                            <MdEdit size={20} />
                           </button>
                           <button
-                            className="job-list-delete-btn"
+                            className="icon-btn"
                             onClick={(e) => {
                               e.stopPropagation();
                               if (
@@ -218,9 +219,9 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
                               }
                             }}
                           >
-                            Delete
+                            <MdDelete size={20} />
                           </button>
-                        </>
+                        </div>
                       </td>
                     )}
                   </tr>

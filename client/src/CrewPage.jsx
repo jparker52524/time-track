@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import { api } from "./api.js";
+import { MdSave } from "react-icons/md";
 import "./CrewPage.css";
 import "./JobsListPage.css";
 
@@ -87,10 +88,16 @@ function CrewPage({ user }) {
               </td>
               <td>
                 <button
+                  className="icon-btn"
                   onClick={() => handleSave(orgUser.id)}
                   disabled={updateWageMutation.isLoading}
+                  title="Save"
                 >
-                  {updateWageMutation.isLoading ? "Saving..." : "Save"}
+                  {updateWageMutation.isLoading ? (
+                    <span className="saving-text">...</span>
+                  ) : (
+                    <MdSave size={20} />
+                  )}
                 </button>
               </td>
             </tr>

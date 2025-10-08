@@ -164,6 +164,137 @@ color: red;
   background-color: #f5f5f5;
 }
 
+.action-icons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.icon-btn svg {
+  color: #333;
+}
+
+.icon-btn:hover svg {
+  color: #0077cc;
+}
+
+/* ------------------------
+   Modal Container & Layout
+------------------------ */
+.jobs-list-modal-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+  max-width: 500px;
+  margin: auto;
+}
+
+/* ------------------------
+   Input Fields
+------------------------ */
+.jobs-list-modal-input,
+.job-list-modal-input {
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.jobs-list-modal-input:focus,
+.job-list-modal-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+}
+
+/* ------------------------
+   Modal Button
+------------------------ */
+.jobs-list-modal-button {
+  background-color: #3b82f6; /* Tailwind blue-500 */
+  color: white;
+  font-size: 16px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background-color 0.2s ease;
+}
+
+.jobs-list-modal-button:hover {
+  background-color: #2563eb; /* Tailwind blue-600 */
+}
+
+/* ------------------------
+   User Selection List
+------------------------ */
+.user-selection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.user-item {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.user-item:hover {
+  background-color: #f0f0f0;
+}
+
+.user-item--selected {
+  background-color: #e0f2ff;
+  border-color: #0077cc;
+  font-weight: 500;
+}
+
+/* ------------------------
+   Responsive Adjustments
+------------------------ */
+@media (max-width: 600px) {
+  .jobs-list-modal-input-container {
+    padding: 0.5rem;
+    width: 100%;
+  }
+
+  .jobs-list-modal-button {
+    width: 100%;
+  }
+
+  .user-selection-list {
+    max-height: 150px;
+  }
+}
+
 @media (max-width: 767px) {
 
   .JobsListPage-header {
