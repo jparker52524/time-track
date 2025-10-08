@@ -312,7 +312,10 @@ function JobPage({ user }) {
         onClose={() => setOverviewOpen(false)}
       >
         <div className="modal-input-container">
-          Profit: ${job.amount - formattedTotalCost - formattedTotalLaborCost}
+          Profit: $
+          {(job.amount - formattedTotalCost - formattedTotalLaborCost).toFixed(
+            2
+          )}
         </div>
         <div className="modal-input-container">Amount: ${job.amount}</div>
         <div className="modal-input-container">
