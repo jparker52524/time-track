@@ -307,27 +307,25 @@ function JobPage({ user }) {
       </div>
       {/* Overview Modal */}
       <Modal
-        title="Job overview"
+        title="Job Overview"
         isOpen={isOverviewOpen}
         onClose={() => setOverviewOpen(false)}
       >
-        <div className="modal-input-container">
+        <div className="modal-stat">
           Profit: $
           {(job.amount - formattedTotalCost - formattedTotalLaborCost).toFixed(
             2
           )}
         </div>
-        <div className="modal-input-container">Amount: ${job.amount}</div>
-        <div className="modal-input-container">
+        <div className="modal-stat">Amount: ${job.amount}</div>
+        <div className="modal-stat">
           Total Cost: $
-          {parseFloat(formattedTotalCost) + parseFloat(formattedTotalLaborCost)}
+          {(
+            parseFloat(formattedTotalCost) + parseFloat(formattedTotalLaborCost)
+          ).toFixed(2)}
         </div>
-        <div className="modal-input-container">
-          Material Cost: ${formattedTotalCost}
-        </div>
-        <div className="modal-input-container">
-          Labor Cost: ${formattedTotalLaborCost}
-        </div>
+        <div className="modal-stat">Material Cost: ${formattedTotalCost}</div>
+        <div className="modal-stat">Labor Cost: ${formattedTotalLaborCost}</div>
       </Modal>
 
       {/* Description Modal */}
@@ -336,7 +334,7 @@ function JobPage({ user }) {
         isOpen={isDescriptionOpen}
         onClose={() => setDescriptionOpen(false)}
       >
-        <div className="modal-input-container">{job.description}</div>
+        <div className="modal-description">{job.description}</div>
       </Modal>
 
       {/* Notes Modal */}
@@ -358,13 +356,21 @@ function JobPage({ user }) {
           </button>
         </div>
 
-        <div className="modal-notes">
-          {notes &&
-            notes.map((note) => (
-              <div key={note.id} className="modal-note">
-                {note.note}
+        <div className="modal-scroll">
+          {notes?.map((note) => (
+            <div key={note.id} className="modal-note">
+              <div>{note.note}</div>
+              <div className="modal-date">
+                {new Date(note.created_at).toLocaleString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       </Modal>
 
@@ -374,97 +380,96 @@ function JobPage({ user }) {
         isOpen={isCostsOpen}
         onClose={() => setCostsOpen(false)}
       >
-        <div className="flex mb-3 space-x-2">
+        <div className="modal-input-container">
           <input
             type="text"
             value={newCostText}
             onChange={(e) => setNewCostText(e.target.value)}
             placeholder="Description"
-            className="border p-2 flex-1 rounded"
+            className="modal-input"
           />
           <input
             type="number"
             value={newCostAmount}
             onChange={(e) => setNewCostAmount(parseFloat(e.target.value) || 0)}
             placeholder="Amount"
-            className="border p-2 w-28 rounded"
+            className="modal-input modal-input-number"
           />
-          <button
-            onClick={addCost}
-            className="bg-green-500 text-white px-3 rounded"
-          >
+          <button onClick={addCost} className="modal-button">
             Add
           </button>
         </div>
-        <div className="max-h-64 overflow-y-auto space-y-2">
-          {costs &&
-            costs.map((cost) => (
-              <div
-                key={cost.id}
-                className="flex justify-between border rounded p-2 bg-gray-50"
-              >
-                <span>{cost.description}</span>
-                <span className="font-semibold">${cost.amount}</span>
+
+        <div className="modal-scroll">
+          {costs?.map((cost) => (
+            <div key={cost.id} className="modal-cost-entry">
+              <div>
+                <div>{cost.description}</div>
+                <div className="modal-date">
+                  {new Date(cost.created_at).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </div>
               </div>
-            ))}
+              <span className="font-semibold">${cost.amount}</span>
+            </div>
+          ))}
         </div>
       </Modal>
-
-      {/* Attachments Modal */}
       <Modal
         title="Job Attachments"
         isOpen={isAttachmentsOpen}
         onClose={() => setAttachmentsOpen(false)}
       >
-        <div className="flex flex-col mb-3 space-y-2">
+        <div className="modal-input-group">
           <input
             type="text"
             value={newAttachHeader}
             onChange={(e) => setNewAttachHeader(e.target.value)}
             placeholder="Figure header"
-            className="border p-2 rounded"
+            className="modal-attachment-input"
           />
-
           <input
             type="text"
             value={newAttachUrl}
             onChange={(e) => setNewAttachUrl(e.target.value)}
             placeholder="Image URL"
-            className="border p-2 rounded"
+            className="modal-input"
           />
-
-          {/* 📷 Camera / Photo Upload */}
           <input
             type="file"
             accept="image/*"
             capture="environment"
             onChange={handleCameraUpload}
-            className="border p-2 rounded"
+            className="modal-input"
           />
-
-          <button
-            onClick={addAttachment}
-            className="bg-purple-500 text-white px-3 py-2 rounded"
-          >
+          <button onClick={addAttachment} className="modal-button">
             Add
           </button>
         </div>
 
-        <div className="max-h-64 overflow-y-auto space-y-2">
-          {attachments &&
-            attachments.map((a, idx) => (
-              <div key={idx} className="border rounded p-2 bg-gray-50">
-                <div className="font-semibold">{a.header}</div>
-                <a
-                  href={a.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  {a.url}
-                </a>
+        <div className="modal-scroll">
+          {attachments?.map((a, idx) => (
+            <div key={idx} className="modal-attachment">
+              <div className="font-semibold">{a.header}</div>
+              <a href={a.url} target="_blank" rel="noreferrer">
+                {a.url}
+              </a>
+              <div className="modal-date">
+                {new Date(a.created_at).toLocaleString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       </Modal>
     </div>
