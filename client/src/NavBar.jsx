@@ -2,7 +2,7 @@ import "./NavBar.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 
-function NavBar() {
+function NavBar({ user, setAddJobOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -13,6 +13,9 @@ function NavBar() {
 
   const showBackButton =
     location.pathname !== "/JobsListPage" && location.pathname !== "/CrewPage";
+
+  const showAddJobButton =
+    location.pathname === "/JobsListPage" && user.is_admin;
 
   return (
     <>
@@ -25,6 +28,11 @@ function NavBar() {
                 onClick={() => navigate("/JobsListPage")}
               >
                 Back
+              </button>
+            )}
+            {showAddJobButton && (
+              <button className="add-btn" onClick={() => setAddJobOpen(true)}>
+                Add Job
               </button>
             )}
           </div>

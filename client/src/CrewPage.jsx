@@ -43,10 +43,10 @@ function CrewPage({ user }) {
   };
 
   return (
-    <div className="crewPage">
+    <div>
       <h1 className="JobsListPage-header nav-header">
         <NavLink to="/JobsListPage" className="nav-link">
-          Job Page
+          Jobs
         </NavLink>
         <NavLink
           to="/CrewPage"
@@ -54,7 +54,7 @@ function CrewPage({ user }) {
             isActive ? "nav-link active" : "nav-link"
           }
         >
-          Crew Page
+          Crew
         </NavLink>
       </h1>
 

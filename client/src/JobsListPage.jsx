@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { api } from "./api.js";
 import Modal from "./Modal.jsx";
 import "./JobsListPage.css";
 
-function JobsListPage({ user }) {
+function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
   // state for modal
-  const [isAddJobOpen, setAddJobOpen] = useState(false);
   const [isEditJobOpen, setEditJobOpen] = useState(false);
   const [jobBeingEdited, setJobBeingEdited] = useState(null);
 
@@ -19,6 +18,8 @@ function JobsListPage({ user }) {
   const [selectedUserIds, setSelectedUserIds] = useState([]);
 
   const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
 
   const fetchJobs = async () => {
     if (!user) return [];
@@ -125,10 +126,10 @@ function JobsListPage({ user }) {
   if (isError) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="jobsListPage">
+    <div>
       <h1 className="JobsListPage-header nav-header">
         <NavLink to="/JobsListPage" className="nav-link">
-          Job Page
+          Jobs
         </NavLink>
         {user.is_admin && (
           <NavLink
@@ -137,32 +138,31 @@ function JobsListPage({ user }) {
               isActive ? "nav-link active" : "nav-link"
             }
           >
-            Crew Page
+            Crew
           </NavLink>
         )}
       </h1>
-      {user.is_admin && (
-        <button onClick={() => setAddJobOpen(true)}>Add Job</button>
-      )}
       {jobsList.length === 0 ? (
         <div>No jobs found</div>
       ) : (
-        <nav>
-          <ul>
+        <table className="crew-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              {/*<th>Location</th>*/}
+              <th>Due Date</th>
+              {user.is_admin && <th>Actions</th>}
+            </tr>
+          </thead>
+          <tbody>
             {jobsList
-              .slice() // make a copy so we don’t mutate state
+              .slice()
               .sort((a, b) => {
                 const dateA = a.due_date ? new Date(a.due_date) : null;
                 const dateB = b.due_date ? new Date(b.due_date) : null;
-
-                // both null → keep original order
                 if (!dateA && !dateB) return 0;
-                // only A is null → put A after B
                 if (!dateA) return 1;
-                // only B is null → put B after A
                 if (!dateB) return -1;
-
-                // both dates → sort ascending (earliest first)
                 return dateA - dateB;
               })
               .map((job) => {
@@ -172,27 +172,26 @@ function JobsListPage({ user }) {
                       day: "2-digit",
                       year: "2-digit",
                     })
-                  : null;
+                  : "";
 
                 return (
-                  <NavLink key={job.id} to={`/JobPage/${job.id}`}>
-                    <li>
-                      <div className="ts">
-                        <div>
-                          <strong>{job.name}</strong>
-                        </div>
-                        {/*{job.location || "No location"}{" "}*/}
-                        {formattedDate && <em>({formattedDate})</em>}
-                        {user.is_admin && (
+                  <tr
+                    key={job.id}
+                    className="clickable-row"
+                    onClick={() => navigate(`/JobPage/${job.id}`)}
+                  >
+                    <td>{job.name}</td>
+                    {/*<td>{job.location || "—"}</td>*/}
+                    <td>{formattedDate || "—"}</td>
+
+                    {user.is_admin && (
+                      <td>
+                        <>
                           <button
                             className="job-list-edit-btn"
                             onClick={(e) => {
-                              e.preventDefault();
                               e.stopPropagation();
-
-                              setJobBeingEdited(job); // <-- Set the job being edited
-
-                              // Prefill modal fields
+                              setJobBeingEdited(job);
                               setJobTitle(job.name || "");
                               setJobLocation(job.location || "");
                               setJobDescription(job.description || "");
@@ -201,20 +200,15 @@ function JobsListPage({ user }) {
                                 job.due_date ? job.due_date.slice(0, 10) : ""
                               );
                               setSelectedUserIds(job.assigned_user_ids || []);
-
                               setEditJobOpen(true);
                             }}
                           >
-                            edit
+                            Edit
                           </button>
-                        )}
-                        {user.is_admin && (
                           <button
                             className="job-list-delete-btn"
                             onClick={(e) => {
-                              e.preventDefault();
                               e.stopPropagation();
-
                               if (
                                 window.confirm(
                                   "Are you sure you want to delete this job?"
@@ -224,16 +218,16 @@ function JobsListPage({ user }) {
                               }
                             }}
                           >
-                            delete
+                            Delete
                           </button>
-                        )}
-                      </div>
-                    </li>
-                  </NavLink>
+                        </>
+                      </td>
+                    )}
+                  </tr>
                 );
               })}
-          </ul>
-        </nav>
+          </tbody>
+        </table>
       )}
       <Modal
         title="Add Job"

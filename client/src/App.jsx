@@ -15,6 +15,7 @@ import "./App.css";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [isAddJobOpen, setAddJobOpen] = useState(false);
   const [rehydrated, setRehydrated] = useState(false);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ function App() {
 
   const Layout = () => (
     <>
-      <NavBar user={user} />
+      <NavBar user={user} setAddJobOpen={setAddJobOpen} />
       <Outlet />
     </>
   );
@@ -46,7 +47,17 @@ function App() {
         <Route element={<Layout />}>
           <Route
             path="/JobsListPage"
-            element={user ? <JobsListPage user={user} /> : <Navigate to="/" />}
+            element={
+              user ? (
+                <JobsListPage
+                  user={user}
+                  isAddJobOpen={isAddJobOpen}
+                  setAddJobOpen={setAddJobOpen}
+                />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
           />
           <Route
             path="/CrewPage"
