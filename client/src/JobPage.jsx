@@ -273,7 +273,15 @@ function JobPage({ user }) {
   return (
     <div className="JobPage">
       <h1 className="job-page-header">{job.name}</h1>
-      <p className="job-location">{job.location}</p>
+      <p className="job-location">
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.location)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {job.location}
+        </a>
+      </p>
       {/*<div className="job-description-wrapper">
         <div className="job-page-label">Job Description:</div>
         <p className="job-description-box">{job.description}</p>
