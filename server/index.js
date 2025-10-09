@@ -385,6 +385,26 @@ app.get("/jobs/:id/status", authenticateToken, async (req, res) => {
   }
 });
 
+// Example in Express.js
+app.post("/jobs/:id/toggleStatus", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `UPDATE jobs
+       SET is_closed = NOT is_closed
+       WHERE id = $1
+       RETURNING *`,
+      [id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error toggling job status:", error);
+    res.status(500).json({ error: "Server error toggling job status" });
+  }
+});
+
 // ✅ Start job (insert new log row)
 app.post("/jobs/:id/start", authenticateToken, async (req, res) => {
   const { id } = req.params;

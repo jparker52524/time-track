@@ -255,6 +255,18 @@ function JobPage({ user }) {
     reader.readAsDataURL(file);
   }
 
+  // toggle job status
+  const toggleJobStatus = async () => {
+    try {
+      const res = await api.post(`/jobs/${job.id}/toggleStatus`, {});
+
+      // If using your custom api client, this is already parsed
+      queryClient.invalidateQueries(["job", id]);
+    } catch (err) {
+      console.error("Failed to toggle job status", err);
+    }
+  };
+
   if (isLoading) return <div>Loading job...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
@@ -267,6 +279,20 @@ function JobPage({ user }) {
         <p className="job-description-box">{job.description}</p>
       </div>*/}
       <div className="action-btn-container">
+        <button
+          className="action-btn"
+          onClick={(e) => {
+            if (
+              window.confirm(
+                "Are you sure you want to change this job's status?"
+              )
+            ) {
+              toggleJobStatus(e);
+            }
+          }}
+        >
+          Status - {job.is_closed ? "Closed" : "Open"}
+        </button>
         {user.is_admin && (
           <button className="action-btn" onClick={() => setOverviewOpen(true)}>
             Overview

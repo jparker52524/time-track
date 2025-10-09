@@ -18,6 +18,9 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
   const [jobDueDate, setJobDueDate] = useState("");
   const [selectedUserIds, setSelectedUserIds] = useState([]);
 
+  // New state for filter dropdown
+  const [statusFilter, setStatusFilter] = useState("open");
+
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
@@ -126,6 +129,13 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
   if (isLoading) return <div>Loading jobs...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
+  // Filter jobs based on statusFilter state
+  const filteredJobs = jobsList.filter((job) => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "open") return !job.is_closed;
+    if (statusFilter === "closed") return job.is_closed;
+  });
+
   return (
     <div>
       <h1 className="JobsListPage-header nav-header">
@@ -143,7 +153,26 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
           </NavLink>
         )}
       </h1>
-      {jobsList.length === 0 ? (
+
+      {/* Filter dropdown above the table */}
+      {user.is_admin && (
+        <div style={{ marginBottom: "1rem" }}>
+          <label>
+            Show:{" "}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ padding: "0.25rem 0.5rem" }}
+            >
+              <option value="all">All</option>
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </select>
+          </label>
+        </div>
+      )}
+
+      {filteredJobs.length === 0 ? (
         <div>No jobs found</div>
       ) : (
         <table className="crew-table">
@@ -152,11 +181,12 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
               <th>Title</th>
               {/*<th>Location</th>*/}
               <th>Due</th>
+              {user.is_admin && <th>Status</th>}
               {user.is_admin && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
-            {jobsList
+            {filteredJobs
               .slice()
               .sort((a, b) => {
                 const dateA = a.due_date ? new Date(a.due_date) : null;
@@ -184,7 +214,9 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
                     <td>{job.name}</td>
                     {/*<td>{job.location || "—"}</td>*/}
                     <td>{formattedDate || "—"}</td>
-
+                    {user.is_admin && (
+                      <td>{job.is_closed ? "Closed" : "Open"}</td>
+                    )}
                     {user.is_admin && (
                       <td>
                         <div className="action-icons">

@@ -39,7 +39,8 @@ CREATE TABLE jobs (
     location TEXT,
     due_date DATE,
     description TEXT,
-    amount NUMERIC(12,2) NOT NULL
+    amount NUMERIC(12,2) NOT NULL,
+    is_closed BOOLEAN DEFAULT FALSE
 );
 
 -- this is where job notes will be stored
