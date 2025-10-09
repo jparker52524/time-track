@@ -72,11 +72,11 @@ button:hover {
   border-color: #0077cc;
 }
 
-/*
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:focus {
+  outline: none;
 }
-*/
 
-/* You can remove the media query entirely since we’re forcing light */
+button:focus-visible {
+  outline: 2px solid #007BFF; /* or your theme's color */
+  outline-offset: 2px;
+}
