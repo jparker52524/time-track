@@ -386,7 +386,7 @@ app.get("/jobs/:id/status", authenticateToken, async (req, res) => {
 });
 
 // Example in Express.js
-app.post("/jobs/:id/toggleStatus", async (req, res) => {
+app.post("/jobs/:id/toggleStatus", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
