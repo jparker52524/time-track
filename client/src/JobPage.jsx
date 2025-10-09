@@ -279,7 +279,7 @@ function JobPage({ user }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          {job.location}
+          📍{job.location}
         </a>
       </p>
       {/*<div className="job-description-wrapper">
