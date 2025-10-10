@@ -40,6 +40,7 @@ html, body {
   overflow-x: hidden;     /* prevent horizontal scroll */
   overflow-y: auto;       /* vertical scroll only if needed */
   box-sizing: border-box;
+  overscroll-behavior: contain;
 }
 
 body {
