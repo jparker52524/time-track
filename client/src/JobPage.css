@@ -87,6 +87,10 @@
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
+  width: 100%;
+  max-width: 400px;
+  pointer-events: auto;
+  z-index: 1000;
 }
 
 .log-time-btn {
