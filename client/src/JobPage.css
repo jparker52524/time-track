@@ -114,8 +114,8 @@
 }
 
 .action-btn-container {
-  position: fixed;
-  bottom: 135px;
+  position: relative;
+  top: 40px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;

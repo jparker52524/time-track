@@ -49,7 +49,6 @@ body {
   min-width: 320px;
   /*padding-top: 60px;      /* offset fixed navbar */
   background-color: #ffffff;
-  -webkit-overflow-scrolling: touch;
 }
 
 h1 {
