@@ -319,13 +319,12 @@ function JobPage({ user }) {
           Attachment
         </button>
       </div>
-      <div></div>
       <div className="log-time-container">
-        {statusMessage && (
+        {/*statusMessage && (
           <p className="status-msg" style={{ color: statusColor }}>
             {statusMessage}
           </p>
-        )}
+        )*/}
 
         <button
           className={`log-time-btn ${isRunningLocal ? "stop" : "start"}`}
