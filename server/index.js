@@ -498,7 +498,7 @@ app.post("/jobs/:jobId/notes", authenticateToken, async (req, res) => {
 app.get("/jobs/:jobId/costs", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
   const result = await pool.query(
-    `SELECT id, job_id, description, amount, created_at
+    `SELECT id, job_id, user_id, description, amount, created_at
       FROM job_costs
       WHERE job_id = $1
       ORDER BY created_at DESC`,
@@ -510,12 +510,12 @@ app.get("/jobs/:jobId/costs", authenticateToken, async (req, res) => {
 // add a cost
 app.post("/jobs/:jobId/costs", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
-  const { description, amount } = req.body;
+  const { userId, description, amount } = req.body;
   const result = await pool.query(
-    `INSERT INTO job_costs (job_id, description, amount)
-       VALUES ($1, $2, $3)
+    `INSERT INTO job_costs (job_id, user_id, description, amount)
+       VALUES ($1, $2, $3, $4)
        RETURNING *`,
-    [jobId, description, amount]
+    [jobId, userId, description, amount]
   );
   res.json(result.rows[0]);
 });

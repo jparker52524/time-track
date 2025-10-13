@@ -56,6 +56,7 @@ CREATE TABLE job_notes (
 CREATE TABLE job_attachments (
     id SERIAL PRIMARY KEY,
     job_id INT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(id) ON DELETE SET NULL,
     file_url TEXT NOT NULL,
     file_name TEXT,
     uploaded_by INT REFERENCES users(id) ON DELETE SET NULL,
@@ -66,6 +67,7 @@ CREATE TABLE job_attachments (
 CREATE TABLE job_costs (
     id SERIAL PRIMARY KEY,
     job_id INT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(id) ON DELETE SET NULL,
     description TEXT,
     amount NUMERIC(12,2) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now()

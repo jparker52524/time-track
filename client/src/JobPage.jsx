@@ -66,6 +66,7 @@ function JobPage({ user }) {
   const addCost = () => {
     if (!newCostText.trim() || !newCostAmount) return;
     addCostMutation.mutate({
+      userId: user.id,
       description: newCostText,
       amount: parseFloat(newCostAmount),
     });
@@ -267,6 +268,12 @@ function JobPage({ user }) {
     }
   };
 
+  // get users
+  const { data: orgUsers = [] } = useQuery({
+    queryKey: ["orgUsers", user?.id],
+    queryFn: () => api.get(`/orgusers`),
+  });
+
   if (isLoading) return <div>Loading job...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
@@ -388,11 +395,15 @@ function JobPage({ user }) {
             Add
           </button>
         </div>
-
         <div className="modal-scroll">
           {notes?.map((note) => (
             <div key={note.id} className="modal-note">
-              <div>{note.note}</div>
+              <div>
+                {note.note} —{" "}
+                <strong>
+                  {note.first_name} {note.last_name}
+                </strong>
+              </div>
               <div className="modal-date">
                 {new Date(note.created_at).toLocaleString(undefined, {
                   year: "numeric",
@@ -434,10 +445,18 @@ function JobPage({ user }) {
         </div>
 
         <div className="modal-scroll">
-          {costs?.map((cost) => (
-            <div key={cost.id} className="modal-cost-entry">
-              <div>
+          {costs?.map((cost) => {
+            // Find the user associated with the cost
+            const user = orgUsers.find((u) => u.id === cost.user_id);
+            return (
+              <div key={cost.id} className="modal-cost-entry">
                 <div>{cost.description}</div>
+                <div>${parseFloat(cost.amount).toFixed(2)}</div>
+                <strong>
+                  {user
+                    ? `${user.first_name} ${user.last_name}`
+                    : "Unknown User"}
+                </strong>
                 <div className="modal-date">
                   {new Date(cost.created_at).toLocaleString(undefined, {
                     year: "numeric",
@@ -448,9 +467,8 @@ function JobPage({ user }) {
                   })}
                 </div>
               </div>
-              <span className="font-semibold">${cost.amount}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </Modal>
       <Modal
