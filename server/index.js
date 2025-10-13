@@ -547,6 +547,60 @@ app.get("/jobs/:jobId/labor-costs", authenticateToken, async (req, res) => {
   }
 });
 
+// DELETE /costs/:id
+app.delete("/costs/:id", async (req, res) => {
+  const costId = parseInt(req.params.id);
+
+  if (isNaN(costId)) {
+    return res.status(400).json({ error: "Invalid cost ID" });
+  }
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM job_costs WHERE id = $1 RETURNING *",
+      [costId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Cost not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Cost deleted successfully", deleted: result.rows[0] });
+  } catch (error) {
+    console.error("Error deleting cost:", error);
+    res.status(500).json({ error: "Failed to delete cost" });
+  }
+});
+
+// DELETE /notes/:id
+app.delete("/notes/:id", async (req, res) => {
+  const noteId = parseInt(req.params.id);
+
+  if (isNaN(noteId)) {
+    return res.status(400).json({ error: "Invalid note ID" });
+  }
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM job_notes WHERE id = $1 RETURNING *",
+      [noteId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Note deleted successfully", deleted: result.rows[0] });
+  } catch (error) {
+    console.error("Error deleting note:", error);
+    res.status(500).json({ error: "Failed to delete note" });
+  }
+});
+
 // MODAL END --------------- THIS IS NOT IMPLIMENTED ---------------
 // ROUTES
 

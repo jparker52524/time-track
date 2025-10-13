@@ -247,10 +247,21 @@
   background-color: #f9fafb;
 }
 
-/* Costs */
-.modal-cost-entry {
+.modal-des-and-cost {
   display: flex;
   justify-content: space-between;
+}
+
+.modal-note-description {
+  display: flex;
+  align-items: flex-start; /* aligns items vertically */
+  justify-content: flex-start; /* aligns content horizontally */
+  flex-direction: column; /* ensures vertical stacking of child elements */
+  text-align: left;
+}
+
+/* Costs */
+.modal-cost-entry {
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 0.5rem;
@@ -284,6 +295,11 @@
   font-size: 16px;
   line-height: 1.5;
   color: #333;
+  display: flex;
+  align-items: flex-start; /* aligns items vertically */
+  justify-content: flex-start; /* aligns content horizontally */
+  flex-direction: column; /* ensures vertical stacking of child elements */
+  text-align: left;
 }
 
 /* Overview stats */
@@ -295,6 +311,8 @@
 }
 
 .modal-date {
+  display: flex;
+  align-items: center;
   font-style: italic;
   font-size: 0.85rem;
   color: #666;

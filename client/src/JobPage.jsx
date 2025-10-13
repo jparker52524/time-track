@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { MdDelete } from "react-icons/md";
 import { api } from "./api.js";
 import Modal from "./Modal.jsx";
 import "./JobPage.css";
@@ -54,6 +55,16 @@ function JobPage({ user }) {
     addNoteMutation.mutate({ userId: user.id, note: newNote });
   };
 
+  const deleteNoteMutation = useMutation({
+    mutationFn: (noteId) => api.delete(`/notes/${noteId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["jobs", user?.id]); // Or ["costs"], depending on your setup
+    },
+    onError: (error) => {
+      console.error("Error deleting cost:", error);
+    },
+  });
+
   const addCostMutation = useMutation({
     mutationFn: (newCost) => api.post(`/jobs/${id}/costs`, newCost),
     onSuccess: () => {
@@ -71,6 +82,16 @@ function JobPage({ user }) {
       amount: parseFloat(newCostAmount),
     });
   };
+
+  const deleteCostMutation = useMutation({
+    mutationFn: (costId) => api.delete(`/costs/${costId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["jobs", user?.id]); // Or ["costs"], depending on your setup
+    },
+    onError: (error) => {
+      console.error("Error deleting cost:", error);
+    },
+  });
 
   const addAttachment = () => {
     if (!newAttachHeader.trim() || !newAttachUrl.trim()) return;
@@ -274,6 +295,12 @@ function JobPage({ user }) {
     queryFn: () => api.get(`/orgusers`),
   });
 
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+  });
+
   if (isLoading) return <div>Loading job...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
@@ -352,20 +379,24 @@ function JobPage({ user }) {
         onClose={() => setOverviewOpen(false)}
       >
         <div className="modal-stat">
-          Profit: $
-          {(job.amount - formattedTotalCost - formattedTotalLaborCost).toFixed(
-            2
+          Profit:{" "}
+          {formatter.format(
+            job.amount - formattedTotalCost - formattedTotalLaborCost
           )}
         </div>
-        <div className="modal-stat">Amount: ${job.amount}</div>
+        <div className="modal-stat">Amount: {formatter.format(job.amount)}</div>
         <div className="modal-stat">
-          Total Cost: $
-          {(
+          Total Cost:{" "}
+          {formatter.format(
             parseFloat(formattedTotalCost) + parseFloat(formattedTotalLaborCost)
-          ).toFixed(2)}
+          )}
         </div>
-        <div className="modal-stat">Material Cost: ${formattedTotalCost}</div>
-        <div className="modal-stat">Labor Cost: ${formattedTotalLaborCost}</div>
+        <div className="modal-stat">
+          Material Cost: {formatter.format(formattedTotalCost)}
+        </div>
+        <div className="modal-stat">
+          Labor Cost: {formatter.format(formattedTotalLaborCost)}
+        </div>
       </Modal>
 
       {/* Description Modal */}
@@ -398,20 +429,36 @@ function JobPage({ user }) {
         <div className="modal-scroll">
           {notes?.map((note) => (
             <div key={note.id} className="modal-note">
-              <div>
-                {note.note} —{" "}
-                <strong>
-                  {note.first_name} {note.last_name}
-                </strong>
-              </div>
-              <div className="modal-date">
-                {new Date(note.created_at).toLocaleString(undefined, {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
+              <div className="modal-note-description">{note.note}</div>
+
+              <div className="modal-des-and-cost">
+                <div className="modal-date">
+                  <strong>
+                    {note.first_name} {note.last_name} - {}
+                  </strong>
+                  {new Date(note.created_at).toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </div>
+                <button
+                  className="icon-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete this note?"
+                      )
+                    ) {
+                      deleteNoteMutation.mutate(note.id);
+                    }
+                  }}
+                >
+                  <MdDelete size={20} />
+                </button>
               </div>
             </div>
           ))}
@@ -435,6 +482,8 @@ function JobPage({ user }) {
           <input
             type="number"
             value={newCostAmount}
+            min={-999999}
+            max={999999}
             onChange={(e) => setNewCostAmount(parseFloat(e.target.value) || 0)}
             placeholder="Amount"
             className="modal-input modal-input-number"
@@ -450,21 +499,45 @@ function JobPage({ user }) {
             const user = orgUsers.find((u) => u.id === cost.user_id);
             return (
               <div key={cost.id} className="modal-cost-entry">
-                <div>{cost.description}</div>
-                <div>${parseFloat(cost.amount).toFixed(2)}</div>
-                <strong>
-                  {user
-                    ? `${user.first_name} ${user.last_name}`
-                    : "Unknown User"}
-                </strong>
-                <div className="modal-date">
-                  {new Date(cost.created_at).toLocaleString(undefined, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
+                <div className="modal-des-and-cost">
+                  <div className="modal-note-description">
+                    {cost.description}
+                  </div>
+                  <span className="font-semibold">
+                    {formatter.format(cost.amount)}
+                  </span>
+                </div>
+                <div className="modal-des-and-cost">
+                  <div className="modal-date">
+                    <strong>
+                      {user
+                        ? `${user.first_name} ${user.last_name} `
+                        : "Unknown User"}{" "}
+                      -{" "}
+                    </strong>
+                    {new Date(cost.created_at).toLocaleString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                  <button
+                    className="icon-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (
+                        window.confirm(
+                          "Are you sure you want to delete this cost?"
+                        )
+                      ) {
+                        deleteCostMutation.mutate(cost.id);
+                      }
+                    }}
+                  >
+                    <MdDelete size={20} />
+                  </button>
                 </div>
               </div>
             );
