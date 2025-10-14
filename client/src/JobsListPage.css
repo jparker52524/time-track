@@ -277,6 +277,15 @@ color: red;
   font-weight: 500;
 }
 
+.centered-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Full viewport height */
+  text-align: center;
+  font-size: 1.2rem; /* Optional */
+}
+
 /* ------------------------
    Responsive Adjustments
 ------------------------ */

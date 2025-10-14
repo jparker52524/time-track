@@ -301,8 +301,9 @@ function JobPage({ user }) {
     minimumFractionDigits: 2,
   });
 
-  if (isLoading) return <div>Loading job...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div className="centered-message">Loading job...</div>;
+  if (isError)
+    return <div className="centered-message">Error: {error.message}</div>;
 
   return (
     <div className="JobPage">

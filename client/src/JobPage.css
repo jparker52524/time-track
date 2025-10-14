@@ -318,3 +318,12 @@
   color: #666;
   margin-top: 4px;
 }
+
+.centered-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Full viewport height */
+  text-align: center;
+  font-size: 1.2rem; /* Optional */
+}

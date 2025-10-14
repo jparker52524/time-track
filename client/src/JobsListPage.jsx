@@ -126,8 +126,9 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
     queryFn: () => api.get(`/orgusers`),
   });
 
-  if (isLoading) return <div>Loading jobs...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
+  if (isLoading) return <div className="centered-message">Loading jobs...</div>;
+  if (isError)
+    return <div className="centered-message">Error: {error.message}</div>;
 
   // Filter jobs based on statusFilter state
   const filteredJobs = jobsList.filter((job) => {
