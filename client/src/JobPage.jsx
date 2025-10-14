@@ -13,6 +13,8 @@ function JobPage({ user }) {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [title, setTitle] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
 
   // state for modal
   const [isNotesOpen, setNotesOpen] = useState(false);
@@ -33,13 +35,67 @@ function JobPage({ user }) {
   });
   const [newCostText, setNewCostText] = useState("");
   const [newCostAmount, setNewCostAmount] = useState("");
-
-  const [attachments, setAttachments] = useState([
-    { header: "Blueprint", url: "https://example.com/blueprint.png" },
-  ]);
-  const [newAttachHeader, setNewAttachHeader] = useState("");
-  const [newAttachUrl, setNewAttachUrl] = useState("");
   // state for modal end
+
+  //attachments start
+  // attachments hooks
+  const { data: attachments = [] } = useQuery({
+    queryKey: ["attachments", id],
+    queryFn: async () => {
+      const res = await api.get(`/files/${id}`);
+      return res.files;
+    },
+    enabled: isAttachmentsOpen && !!id,
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async ({ title, file }) => {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("job_id", id);
+      formData.append("title", title);
+
+      const res = await fetch(`${import.meta.env.VITE_API_BASE}/upload`, {
+        method: "POST",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const message = data?.error || res.statusText || "Upload failed";
+        throw new Error(message);
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["attachments", id]);
+      setTitle("");
+      setSelectedFile(null);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (key) => api.delete("/file", { key }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["attachments", id]);
+    },
+    onError: (err) => {
+      console.error("Delete failed:", err);
+    },
+  });
+
+  const handleDelete = (key) => {
+    if (window.confirm("Are you sure you want to delete this file?")) {
+      deleteMutation.mutate(key);
+    }
+  };
+  //attachments end
 
   // handlers for modal
   const addNoteMutation = useMutation({
@@ -92,16 +148,6 @@ function JobPage({ user }) {
       console.error("Error deleting cost:", error);
     },
   });
-
-  const addAttachment = () => {
-    if (!newAttachHeader.trim() || !newAttachUrl.trim()) return;
-    setAttachments([
-      ...attachments,
-      { header: newAttachHeader, url: newAttachUrl },
-    ]);
-    setNewAttachHeader("");
-    setNewAttachUrl("");
-  };
   // handlers for modal
 
   // ✅ Fetch job details
@@ -264,18 +310,6 @@ function JobPage({ user }) {
   }, 0);
 
   const formattedTotalLaborCost = totalLaborCost.toFixed(2);
-
-  // camera photo upload
-  function handleCameraUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setNewAttachUrl(reader.result); // Sets the image as a base64 data URL
-    };
-    reader.readAsDataURL(file);
-  }
 
   // toggle job status
   const toggleJobStatus = async () => {
@@ -553,48 +587,57 @@ function JobPage({ user }) {
         <div className="modal-input-group">
           <input
             type="text"
-            value={newAttachHeader}
-            onChange={(e) => setNewAttachHeader(e.target.value)}
-            placeholder="Figure header"
-            className="modal-attachment-input"
-          />
-          <input
-            type="text"
-            value={newAttachUrl}
-            onChange={(e) => setNewAttachUrl(e.target.value)}
-            placeholder="Image URL"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Photo title"
             className="modal-input"
           />
+
           <input
             type="file"
             accept="image/*"
-            capture="environment"
-            onChange={handleCameraUpload}
+            onChange={(e) => setSelectedFile(e.target.files[0])}
             className="modal-input"
           />
-          <button onClick={addAttachment} className="modal-button">
-            Add
+
+          <button
+            className="modal-button"
+            onClick={() =>
+              selectedFile &&
+              title &&
+              uploadMutation.mutate({ title, file: selectedFile })
+            }
+            disabled={uploadMutation.isPending}
+          >
+            {uploadMutation.isPending ? "Uploading..." : "Upload"}
           </button>
         </div>
 
         <div className="modal-scroll">
-          {attachments?.map((a, idx) => (
-            <div key={idx} className="modal-attachment">
-              <div className="font-semibold">{a.header}</div>
-              <a href={a.url} target="_blank" rel="noreferrer">
-                {a.url}
-              </a>
-              <div className="modal-date">
-                {new Date(a.created_at).toLocaleString(undefined, {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
+          {isLoading ? (
+            <div>Loading attachments...</div>
+          ) : attachments.length === 0 ? (
+            <div className="text-gray-500 text-sm">No attachments yet</div>
+          ) : (
+            attachments.map((a) => (
+              <div key={a.id} className="modal-attachment">
+                <div className="font-semibold">{a.title}</div>
+                <a href={a.url} target="_blank" rel="noreferrer">
+                  View File
+                </a>
+                <div className="modal-date">
+                  {new Date(a.uploaded_at).toLocaleString()}
+                </div>
+                <button
+                  className="modal-delete"
+                  disabled={deleteMutation.isPending}
+                  onClick={() => handleDelete(a.file_name)}
+                >
+                  Delete
+                </button>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </Modal>
     </div>

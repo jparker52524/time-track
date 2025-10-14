@@ -56,7 +56,6 @@ CREATE TABLE job_notes (
 CREATE TABLE job_attachments (
     id SERIAL PRIMARY KEY,
     job_id INT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
-    user_id INT REFERENCES users(id) ON DELETE SET NULL,
     title TEXT NOT NULL,
     file_url TEXT NOT NULL,
     file_name TEXT,

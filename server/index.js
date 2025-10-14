@@ -4,6 +4,14 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const {
+  S3Client,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { Upload } = require("@aws-sdk/lib-storage");
+const multer = require("multer");
 const { Pool } = require("pg");
 
 const app = express();
@@ -27,6 +35,19 @@ if (
 }
 
 const pool = new Pool(poolConfig);
+
+// Configure AWS SDK with your region and credentials (if not using default env vars)
+const s3Client = new S3Client({
+  region: "us-east-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+const bucketName = "s3timetrackerfilebucket";
 // CONFIG END
 
 //JWT MIDDLEWARE START
@@ -45,7 +66,136 @@ function authenticateToken(req, res, next) {
 }
 //JWT MIDDLEWARE END
 
+//S3 MIDDLEWARE START
+const getPresignedUrl = async (key) => {
+  const command = new GetObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+  });
+  return await getSignedUrl(s3Client, command, { expiresIn: 300 }); // 5 minutes
+};
+//S3 MIDDLEWARE END
+
 // ROUTES
+
+// ======= S3 File Bucket ======= //
+// add file
+app.post(
+  "/upload",
+  authenticateToken,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const jobId = req.body.job_id || "unknown";
+
+      const key = `${jobId}/${Date.now()}_${req.file.originalname}`;
+
+      const parallelUploads3 = new Upload({
+        client: s3Client,
+        params: {
+          Bucket: bucketName,
+          Key: key,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype,
+          ACL: "private",
+        },
+      });
+
+      await parallelUploads3.done();
+
+      const fileUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+
+      await pool.query(
+        `INSERT INTO job_attachments (job_id, file_url, file_name, uploaded_by, title)
+        VALUES ($1, $2, $3, $4, $5)`,
+        [jobId, fileUrl, key, req.user.id, req.file.originalname]
+      );
+
+      res.json({
+        message: "File uploaded successfully!",
+        fileUrl,
+        key,
+      });
+    } catch (err) {
+      console.error("Upload error:", err);
+      res.status(500).json({ error: "Failed to upload file" });
+    }
+  }
+);
+
+// get file
+app.get("/files/:jobId", authenticateToken, async (req, res) => {
+  const { jobId } = req.params;
+
+  if (!jobId) {
+    return res.status(400).json({ error: "Missing job ID" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT id, job_id, title, file_name, uploaded_by, uploaded_at
+       FROM job_attachments
+       WHERE job_id = $1`,
+      [jobId]
+    );
+
+    const files = await Promise.all(
+      result.rows.map(async (file) => {
+        const url = await getPresignedUrl(file.file_name);
+        return {
+          id: file.id,
+          title: file.title,
+          uploaded_by: file.uploaded_by,
+          uploaded_at: file.uploaded_at,
+          file_name: file.file_name,
+          url,
+        };
+      })
+    );
+
+    res.json({ files });
+  } catch (err) {
+    console.error("Error fetching files:", err);
+    res.status(500).json({ error: "Failed to retrieve files" });
+  }
+});
+
+app.delete("/file", authenticateToken, async (req, res) => {
+  const { key } = req.body;
+
+  if (!key) return res.status(400).json({ error: "Missing key" });
+
+  try {
+    // 🧹 Step 1: Delete from S3
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      })
+    );
+
+    // 🗂️ Step 2: Delete from database
+    const result = await pool.query(
+      `DELETE FROM job_attachments WHERE file_name = $1 RETURNING *;`,
+      [key]
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: "No matching file found in database" });
+    }
+
+    res.json({ message: "File deleted successfully", deleted: result.rows[0] });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Failed to delete file" });
+  }
+});
 
 //Login
 app.post("/auth/login", async (req, res) => {
