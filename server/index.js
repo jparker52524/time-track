@@ -758,4 +758,9 @@ app.delete("/notes/:id", async (req, res) => {
 // ROUTES
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () =>
+  console.log(`Server running on port ${PORT}`)
+);
+
+// Set server timeout to 10 minutes
+server.setTimeout(10 * 60 * 1000); // 10 minutes
