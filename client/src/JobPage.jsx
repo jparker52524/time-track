@@ -348,15 +348,6 @@ function JobPage({ user }) {
     minimumFractionDigits: 2,
   });
 
-  //disable background scroll on mobile
-  useEffect(() => {
-    if (isAttachmentsOpen) {
-      document.body.style.overflow = "hidden"; // prevent background scroll
-    } else {
-      document.body.style.overflow = "auto"; // restore scroll when modal closes
-    }
-  }, [isAttachmentsOpen]);
-
   if (isLoading) return <div className="centered-message">Loading job...</div>;
   if (isError)
     return <div className="centered-message">Error: {error.message}</div>;
