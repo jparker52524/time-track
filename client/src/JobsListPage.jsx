@@ -157,13 +157,14 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
 
       {/* Filter dropdown above the table */}
       {user.is_admin && (
-        <div style={{ marginBottom: "1rem" }}>
-          <label>
-            Show:{" "}
+        <div className="status-filter-container">
+          <label className="status-filter-label" htmlFor="status-filter">
+            Show:
             <select
+              id="status-filter"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ padding: "0.25rem 0.5rem" }}
+              className="status-filter-select"
             >
               <option value="all">All</option>
               <option value="open">Open</option>

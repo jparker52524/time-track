@@ -40,6 +40,7 @@ function CrewPage({ user }) {
     if (newWage !== undefined && newWage !== "") {
       console.log("Saving wage for user ID:", id, "New wage:", newWage);
       updateWageMutation.mutate({ id, hourly_rate: parseFloat(newWage) });
+      alert("New wage saved.");
     }
   };
 

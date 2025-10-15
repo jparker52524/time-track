@@ -74,7 +74,7 @@
 }
 
 .jobs-list-modal-button {
-  background-color: #3b82f6; /* Tailwind's blue-500 */
+  background-color: rgb(18, 97, 211); /* Tailwind's blue-500 */
   color: white;
   padding: 0 0.75rem;
   border: none;
@@ -83,7 +83,7 @@
 }
 
 .jobs-list-modal-button:hover {
-  background-color: #2563eb; /* Tailwind's blue-600 */
+  background-color: rgb(2, 76, 165); /* Tailwind's blue-600 */
 }
 
 /* orgUser map and selecting */
@@ -227,7 +227,7 @@ color: red;
    Modal Button
 ------------------------ */
 .jobs-list-modal-button {
-  background-color: #3b82f6; /* Tailwind blue-500 */
+  background-color: rgb(18, 97, 211); /* Tailwind blue-500 */
   color: white;
   font-size: 16px;
   padding: 10px 16px;
@@ -239,7 +239,7 @@ color: red;
 }
 
 .jobs-list-modal-button:hover {
-  background-color: #2563eb; /* Tailwind blue-600 */
+  background-color: rgb(2, 76, 165); /* Tailwind blue-600 */
 }
 
 /* ------------------------
@@ -284,6 +284,39 @@ color: red;
   height: 100vh; /* Full viewport height */
   text-align: center;
   font-size: 1.2rem; /* Optional */
+}
+
+/* status button and drop down css */
+.status-filter-container {
+  margin-bottom: 1rem;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+.status-filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.status-filter-select {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.status-filter-select:hover,
+.status-filter-select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 /* ------------------------
