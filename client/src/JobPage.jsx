@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MdDelete } from "react-icons/md";
 import { api } from "./api.js";
@@ -15,6 +15,7 @@ function JobPage({ user }) {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   // state for modal
   const [isNotesOpen, setNotesOpen] = useState(false);
@@ -77,8 +78,20 @@ function JobPage({ user }) {
       queryClient.invalidateQueries(["attachments", id]);
       setTitle("");
       setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null;
+      }
     },
   });
+
+  const handleCloseAttachmentsModal = () => {
+    setAttachmentsOpen(false);
+    setTitle("");
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null; // Reset file input
+    }
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (key) => api.delete("/file", { key }),
@@ -385,7 +398,7 @@ function JobPage({ user }) {
           Costs
         </button>
         <button className="action-btn" onClick={() => setAttachmentsOpen(true)}>
-          Attachment
+          Attachments
         </button>
       </div>
       <div className="log-time-container">
@@ -582,20 +595,21 @@ function JobPage({ user }) {
       <Modal
         title="Job Attachments"
         isOpen={isAttachmentsOpen}
-        onClose={() => setAttachmentsOpen(false)}
+        onClose={handleCloseAttachmentsModal}
       >
         <div className="modal-input-group">
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Photo title"
+            placeholder="Attachment title"
             className="modal-input"
           />
 
           <input
             type="file"
             accept="image/*"
+            ref={fileInputRef}
             onChange={(e) => setSelectedFile(e.target.files[0])}
             className="modal-input"
           />
@@ -619,24 +633,35 @@ function JobPage({ user }) {
           ) : attachments.length === 0 ? (
             <div className="text-gray-500 text-sm">No attachments yet</div>
           ) : (
-            attachments.map((a) => (
-              <div key={a.id} className="modal-attachment">
-                <div className="font-semibold">{a.title}</div>
-                <a href={a.url} target="_blank" rel="noreferrer">
-                  View File
-                </a>
-                <div className="modal-date">
-                  {new Date(a.uploaded_at).toLocaleString()}
+            attachments.map((a) => {
+              const user = orgUsers.find((u) => u.id === a.uploaded_by);
+              return (
+                <div key={a.id} className="modal-attachment">
+                  <div className="font-semibold">{a.title}</div>
+                  <a href={a.url} target="_blank" rel="noreferrer">
+                    View File
+                  </a>
+                  <div className="modal-des-and-cost">
+                    <div className="modal-date">
+                      <strong>
+                        {user
+                          ? `${user.first_name} ${user.last_name} `
+                          : "Unknown user"}{" "}
+                        -{" "}
+                      </strong>
+                      {new Date(a.uploaded_at).toLocaleString()}
+                    </div>
+                    <button
+                      className="icon-btn"
+                      disabled={deleteMutation.isPending}
+                      onClick={() => handleDelete(a.file_name)}
+                    >
+                      <MdDelete size={20} />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  className="modal-delete"
-                  disabled={deleteMutation.isPending}
-                  onClick={() => handleDelete(a.file_name)}
-                >
-                  Delete
-                </button>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </Modal>

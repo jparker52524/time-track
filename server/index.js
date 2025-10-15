@@ -47,7 +47,7 @@ const s3Client = new S3Client({
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 100 * 1024 * 1024 }, // 50 MB max per file
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB max per file
 });
 
 const bucketName = "s3timetrackerfilebucket";
