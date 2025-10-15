@@ -93,9 +93,17 @@ app.post(
         return res.status(400).json({ error: "No file uploaded" });
       }
 
-      const jobId = req.body.job_id || "unknown";
+      const jobId = req.body.job_id;
+      if (!jobId) {
+        return res.status(400).json({ error: "Missing job ID" });
+      }
 
       const key = `${jobId}/${Date.now()}_${req.file.originalname}`;
+
+      const title =
+        typeof req.body.title === "string"
+          ? req.body.title.trim()
+          : req.file.originalname;
 
       const parallelUploads3 = new Upload({
         client: s3Client,
@@ -115,13 +123,14 @@ app.post(
       await pool.query(
         `INSERT INTO job_attachments (job_id, file_url, file_name, uploaded_by, title)
         VALUES ($1, $2, $3, $4, $5)`,
-        [jobId, fileUrl, key, req.user.id, req.file.originalname]
+        [jobId, fileUrl, key, req.user.id, title]
       );
 
       res.json({
         message: "File uploaded successfully!",
         fileUrl,
         key,
+        title,
       });
     } catch (err) {
       console.error("Upload error:", err);

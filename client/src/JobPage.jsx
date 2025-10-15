@@ -633,35 +633,46 @@ function JobPage({ user }) {
           ) : attachments.length === 0 ? (
             <div className="text-gray-500 text-sm">No attachments yet</div>
           ) : (
-            attachments.map((a) => {
-              const user = orgUsers.find((u) => u.id === a.uploaded_by);
-              return (
-                <div key={a.id} className="modal-attachment">
-                  <div className="font-semibold">{a.title}</div>
-                  <a href={a.url} target="_blank" rel="noreferrer">
-                    View File
-                  </a>
-                  <div className="modal-des-and-cost">
-                    <div className="modal-date">
-                      <strong>
-                        {user
-                          ? `${user.first_name} ${user.last_name} `
-                          : "Unknown user"}{" "}
-                        -{" "}
-                      </strong>
-                      {new Date(a.uploaded_at).toLocaleString()}
+            [...attachments]
+              .sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at))
+              .map((a) => {
+                const user = orgUsers.find((u) => u.id === a.uploaded_by);
+                return (
+                  <div key={a.id} className="modal-attachment">
+                    <div className="font-semibold">{a.title}</div>
+                    {a.url.includes("image") ||
+                    a.url.match(/\.(jpeg|jpg|gif|png)(\?.*)?$/i) ? (
+                      <img
+                        src={a.url}
+                        alt="Uploaded File"
+                        style={{ maxWidth: "100%", height: "auto" }}
+                      />
+                    ) : (
+                      <a href={a.url} target="_blank" rel="noreferrer">
+                        View File
+                      </a>
+                    )}
+                    <div className="modal-des-and-cost">
+                      <div className="modal-date">
+                        <strong>
+                          {user
+                            ? `${user.first_name} ${user.last_name} `
+                            : "Unknown user"}{" "}
+                          -{" "}
+                        </strong>
+                        {new Date(a.uploaded_at).toLocaleString()}
+                      </div>
+                      <button
+                        className="icon-btn"
+                        disabled={deleteMutation.isPending}
+                        onClick={() => handleDelete(a.file_name)}
+                      >
+                        <MdDelete size={20} />
+                      </button>
                     </div>
-                    <button
-                      className="icon-btn"
-                      disabled={deleteMutation.isPending}
-                      onClick={() => handleDelete(a.file_name)}
-                    >
-                      <MdDelete size={20} />
-                    </button>
                   </div>
-                </div>
-              );
-            })
+                );
+              })
           )}
         </div>
       </Modal>
