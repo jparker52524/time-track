@@ -156,6 +156,7 @@
   display: block;         /* Make it behave like a block */
   margin: 20px auto;      /* Center horizontally */
   text-align: center;
+  white-space: nowrap;
 }
 
 .add-btn:hover {

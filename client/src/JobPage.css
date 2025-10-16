@@ -352,7 +352,11 @@
 
 @media (hover: none) and (pointer: coarse) {
   .action-btn:focus {
-    outline: none;
+    border-color: black;
+  }
+
+  .action-btn:hover {
+    border-color: black;
   }
 }
 
