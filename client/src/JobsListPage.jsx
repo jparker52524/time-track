@@ -137,6 +137,14 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
     }
   }, [assignedUsers]);
 
+  useEffect(() => {
+    if (isAddJobOpen && !jobDueDate) {
+      const today = new Date();
+      const formattedToday = today.toISOString().slice(0, 10); // "YYYY-MM-DD"
+      setJobDueDate(formattedToday);
+    }
+  }, [isAddJobOpen, jobDueDate]);
+
   if (isLoading) return <div className="centered-message">Loading jobs...</div>;
   if (isError)
     return <div className="centered-message">Error: {error.message}</div>;
@@ -307,7 +315,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
             type="number"
             value={jobAmount}
             onChange={(e) => setJobAmount(e.target.value)}
-            placeholder="Amount"
+            placeholder="Enter Amount..."
             className="job-list-modal-input"
           />
           <input
