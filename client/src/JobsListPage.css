@@ -268,13 +268,18 @@ color: red;
 }
 
 .user-item:hover {
-  background-color: #f0f0f0;
+  background-color: transparent;
+  border: 1px solid black;
 }
 
 .user-item--selected {
   background-color: #e0f2ff;
   border-color: #0077cc;
-  font-weight: 500;
+}
+
+.user-item--selected:hover {
+  background-color: #e0f2ff;
+  border-color: black;
 }
 
 .centered-message {
@@ -317,6 +322,31 @@ color: red;
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.date-input {
+  max-width: 500px;
+  padding: 10px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+}
+
+.date-input:focus {
+  border-color: #0073fe;
+  box-shadow: 0 0 0 2px rgba(0, 115, 254, 0.2);
+  outline: none;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.4);
+  cursor: pointer;
 }
 
 /* ------------------------

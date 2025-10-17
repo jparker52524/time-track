@@ -763,6 +763,25 @@ app.delete("/notes/:id", async (req, res) => {
   }
 });
 
+// GET assigned user IDs for a specific job
+app.get("/jobs/:jobId/assigned-users", async (req, res) => {
+  const { jobId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT user_id FROM job_assignments WHERE job_id = $1`,
+      [jobId]
+    );
+
+    const assignedUserIds = result.rows.map((row) => row.user_id);
+
+    res.json({ assignedUserIds });
+  } catch (error) {
+    console.error("Error fetching assigned users:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // MODAL END --------------- THIS IS NOT IMPLIMENTED ---------------
 // ROUTES
 

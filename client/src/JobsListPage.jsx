@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavLink, useNavigate } from "react-router-dom";
 import { api } from "./api.js";
@@ -10,7 +10,6 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
   // state for modal
   const [isEditJobOpen, setEditJobOpen] = useState(false);
   const [jobBeingEdited, setJobBeingEdited] = useState(null);
-
   const [jobTitle, setJobTitle] = useState("");
   const [jobLocation, setJobLocation] = useState("");
   const [jobDescription, setJobDescription] = useState("");
@@ -22,13 +21,11 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
   const [statusFilter, setStatusFilter] = useState("open");
 
   const queryClient = useQueryClient();
-
   const navigate = useNavigate();
 
   const fetchJobs = async () => {
     if (!user) return [];
-
-    // Just call api.get(endpoint); token is already read from localStorage in your wrapper
+    // token is already handled inside api wrapper
     const data = await api.get("/userJobsList");
     return data;
   };
@@ -45,7 +42,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
   });
 
   const addJobMutation = useMutation({
-    mutationFn: (newJob) => api.post(`/jobs`, newJob),
+    mutationFn: (newJob) => api.post("/jobs", newJob),
     onSuccess: () => {
       queryClient.invalidateQueries(["jobs", user?.id]);
       setJobTitle("");
@@ -72,7 +69,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
   }
 
   const editJobMutation = useMutation({
-    mutationFn: (newJob) => api.put(`/jobs`, newJob),
+    mutationFn: (newJob) => api.put("/jobs", newJob),
     onSuccess: () => {
       queryClient.invalidateQueries(["jobs", user?.id]);
       setJobTitle("");
@@ -87,7 +84,6 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
 
   function handleEditJob() {
     if (!jobBeingEdited) return;
-
     editJobMutation.mutate({
       id: jobBeingEdited.id, // pass job ID
       userId: user.id,
@@ -99,7 +95,6 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
       jobDueDate,
       assignedUserIds: selectedUserIds,
     });
-
     // Clear modal state after save
     setEditJobOpen(false);
     setJobBeingEdited(null);
@@ -123,8 +118,24 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
 
   const { data: orgUsers = [] } = useQuery({
     queryKey: ["orgUsers", user?.id],
-    queryFn: () => api.get(`/orgusers`),
+    queryFn: () => api.get("/orgusers"),
   });
+
+  const { data: assignedUsers = [] } = useQuery({
+    queryKey: ["assignedUsers", jobBeingEdited?.id],
+    queryFn: () => {
+      if (!jobBeingEdited?.id) return Promise.resolve([]);
+      return api.get(`/jobs/${jobBeingEdited.id}/assigned-users`);
+    },
+  });
+
+  useEffect(() => {
+    if (assignedUsers && Array.isArray(assignedUsers.assignedUserIds)) {
+      setSelectedUserIds(assignedUsers.assignedUserIds);
+    } else {
+      setSelectedUserIds([]);
+    }
+  }, [assignedUsers]);
 
   if (isLoading) return <div className="centered-message">Loading jobs...</div>;
   if (isError)
@@ -135,6 +146,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
     if (statusFilter === "all") return true;
     if (statusFilter === "open") return !job.is_closed;
     if (statusFilter === "closed") return job.is_closed;
+    return true;
   });
 
   return (
@@ -181,7 +193,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
           <thead>
             <tr>
               <th>Title</th>
-              {/*<th>Location</th>*/}
+              {/* <th>Location</th> */}
               <th>Due</th>
               {user.is_admin && <th>Status</th>}
               {user.is_admin && <th>Actions</th>}
@@ -206,7 +218,6 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
                       year: "2-digit",
                     })
                   : "";
-
                 return (
                   <tr
                     key={job.id}
@@ -214,7 +225,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
                     onClick={() => navigate(`/JobPage/${job.id}`)}
                   >
                     <td>{job.name}</td>
-                    {/*<td>{job.location || "—"}</td>*/}
+                    {/* <td>{job.location || "—"}</td> */}
                     <td>{formattedDate || "—"}</td>
                     {user.is_admin && (
                       <td>{job.is_closed ? "Closed" : "Open"}</td>
@@ -234,7 +245,6 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
                               setJobDueDate(
                                 job.due_date ? job.due_date.slice(0, 10) : ""
                               );
-                              setSelectedUserIds(job.assigned_user_ids || []);
                               setEditJobOpen(true);
                             }}
                           >
@@ -264,6 +274,8 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
           </tbody>
         </table>
       )}
+
+      {/* Add Job Modal */}
       <Modal
         title="Add Job"
         isOpen={isAddJobOpen}
@@ -302,13 +314,12 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
             type="date"
             value={jobDueDate}
             onChange={(e) => setJobDueDate(e.target.value)}
-            className="jobs-list-modal-input"
+            className="date-input"
           />
-          {/*Map users in org, if clicked on, highlight and assign*/}
+          {/* Map users in org, if clicked on, highlight and assign */}
           <div className="user-selection-list">
             {orgUsers.map((orgUser) => {
               const isSelected = selectedUserIds.includes(orgUser.id);
-
               return (
                 <div
                   key={orgUser.id}
@@ -332,7 +343,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
         </div>
       </Modal>
 
-      {/* edit job Modal */}
+      {/* Edit Job Modal */}
       <Modal
         title="Edit Job"
         isOpen={isEditJobOpen}
@@ -380,13 +391,12 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
             type="date"
             value={jobDueDate}
             onChange={(e) => setJobDueDate(e.target.value)}
-            className="jobs-list-modal-input"
+            className="date-input"
           />
-          {/*Map users in org, if clicked on, highlight and assign*/}
+          {/* Map users in org, if clicked on, highlight and assign */}
           <div className="user-selection-list">
             {orgUsers.map((orgUser) => {
               const isSelected = selectedUserIds.includes(orgUser.id);
-
               return (
                 <div
                   key={orgUser.id}
