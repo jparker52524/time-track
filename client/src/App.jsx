@@ -8,6 +8,8 @@ import {
 import { useState, useEffect } from "react";
 import NavBar from "./NavBar.jsx";
 import LoginPage from "./LoginPage.jsx";
+import SignUpPage from "./SignUpPage.jsx";
+import CreateOrgPage from "./CreateOrgPage.jsx";
 import JobsListPage from "./JobsListPage.jsx";
 import CrewPage from "./CrewPage.jsx";
 import JobPage from "./JobPage.jsx";
@@ -16,6 +18,7 @@ import "./App.css";
 function App() {
   const [user, setUser] = useState(null);
   const [isAddJobOpen, setAddJobOpen] = useState(false);
+  const [isAddUserOpen, setAddUserOpen] = useState(false);
   const [rehydrated, setRehydrated] = useState(false);
 
   useEffect(() => {
@@ -28,7 +31,11 @@ function App() {
 
   const Layout = () => (
     <>
-      <NavBar user={user} setAddJobOpen={setAddJobOpen} />
+      <NavBar
+        user={user}
+        setAddJobOpen={setAddJobOpen}
+        setAddUserOpen={setAddUserOpen}
+      />
       <Outlet />
     </>
   );
@@ -42,6 +49,8 @@ function App() {
       <Routes>
         {/* Public login page */}
         <Route path="/" element={<LoginPage onLogin={setUser} />} />
+        <Route path="/SignUpPage" element={<SignUpPage />} />
+        <Route path="/CreateOrgPage" element={<CreateOrgPage />} />
 
         {/* Protected routes */}
         <Route element={<Layout />}>
@@ -61,7 +70,17 @@ function App() {
           />
           <Route
             path="/CrewPage"
-            element={user ? <CrewPage user={user} /> : <Navigate to="/" />}
+            element={
+              user ? (
+                <CrewPage
+                  user={user}
+                  isAddUserOpen={isAddUserOpen}
+                  setAddUserOpen={setAddUserOpen}
+                />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
           />
           <Route
             path="/JobPage/:id"

@@ -1,4 +1,4 @@
-.login-page {
+.signup-page {
   display: flex;
   flex-direction: column;
   align-items: center;   /* center horizontally */
@@ -6,7 +6,7 @@
   position: relative;
 }
 
-.login-container {
+.signup-container {
     display: flex;
     flex-direction: column;
     gap: 10px;               /* space between inputs */
@@ -16,7 +16,7 @@
     border-radius: 8px;
 }
 
-.login-input {
+.signup-input {
     padding: 8px 12px;          /* space inside */
     border: 1px solid #ccc;     /* light gray border */
     border-radius: 4px;         /* slight rounded corners */
@@ -26,26 +26,22 @@
     width: 90%;
 }
 
-.login-input:focus {
+.signup-input:focus {
   border-color: #646cff;      /* blue border when focused */
   box-shadow: 0 0 3px #646cff;/* subtle glow */
 }
 
-.login-header {
+.signup-header {
     font-size: 3.2em;
     line-height: 0.3;
 }
 
-.login-error {
-  color: #e74c3c;
-  margin-top: 10px;
-  margin-bottom: 0px;
-  font-size: 0.9rem;
-  text-align: center;
+.error {
+  color: white;
+  margin-top: 5px;
 }
 
-
-.login-btn {
+.signup-btn {
   margin-top: 16px;
   font-size: 18px;
   padding: 10px 20px;
@@ -59,22 +55,32 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.login-btn:hover {
+.signup-btn:hover {
   background-color: #005fa3;
 }
 
-.login-btn:active {
+.signup-btn:active {
   transform: scale(0.98);
 }
 
-.login-btn:disabled {
+.signup-btn:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
   opacity: 0.7;
 }
 
-.separator {
-  margin: 0 10px;
-  color: white;
+.status-message {
+  margin-top: 10px;
+  margin-bottom: 0px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.status-message.error {
+  color: #e74c3c;
+}
+
+.status-message.success {
+  color: #27ae60;
 }
 

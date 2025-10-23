@@ -2,7 +2,7 @@ import "./NavBar.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 
-function NavBar({ user, setAddJobOpen }) {
+function NavBar({ user, setAddJobOpen, setAddUserOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,6 +16,9 @@ function NavBar({ user, setAddJobOpen }) {
 
   const showAddJobButton =
     location.pathname === "/JobsListPage" && user.is_admin;
+
+  const showAddUserButton =
+    location.pathname === "/CrewPage" && user.is_superadmin;
 
   return (
     <>
@@ -33,6 +36,11 @@ function NavBar({ user, setAddJobOpen }) {
             {showAddJobButton && (
               <button className="add-btn" onClick={() => setAddJobOpen(true)}>
                 Add Job
+              </button>
+            )}
+            {showAddUserButton && (
+              <button className="add-btn" onClick={() => setAddUserOpen(true)}>
+                Add User(s)
               </button>
             )}
           </div>

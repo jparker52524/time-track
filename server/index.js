@@ -176,6 +176,7 @@ app.get("/files/:jobId", authenticateToken, async (req, res) => {
   }
 });
 
+// delete file
 app.delete("/file", authenticateToken, async (req, res) => {
   const { key } = req.body;
 
@@ -208,6 +209,46 @@ app.delete("/file", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Failed to delete file" });
   }
 });
+// S3 END //
+
+//Create Org
+app.post("/auth/createOrg", async (req, res) => {
+  const { orgName, firstName, lastName, email, password } = req.body;
+  console.log(req.body);
+
+  try {
+    await pool.query("BEGIN");
+
+    // 1. Insert organization
+    const orgResult = await pool.query(
+      `INSERT INTO organizations (name, status)
+       VALUES ($1, 'trial')
+       RETURNING id`,
+      [orgName]
+    );
+    const orgId = orgResult.rows[0].id;
+
+    // 2. Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 3. Insert user
+    await pool.query(
+      `INSERT INTO users (org_id, first_name, last_name, email, password_hash, is_admin, is_superadmin)
+       VALUES ($1, $2, $3, $4, $5, TRUE, TRUE)`,
+      [orgId, firstName, lastName, email, hashedPassword]
+    );
+
+    await pool.query("COMMIT");
+
+    res
+      .status(201)
+      .json({ message: "Organization and admin user created successfully." });
+  } catch (error) {
+    await pool.query("ROLLBACK");
+    console.error("Error creating organization and user:", error);
+    res.status(500).json({ error: "Failed to create organization and user." });
+  }
+});
 
 //Login
 app.post("/auth/login", async (req, res) => {
@@ -216,7 +257,7 @@ app.post("/auth/login", async (req, res) => {
   try {
     // 1. find user by email
     const result = await pool.query(
-      "SELECT id, org_id, first_name, last_name, email, password_hash, is_admin FROM users WHERE email = $1",
+      "SELECT id, org_id, first_name, last_name, email, password_hash, is_admin, is_superadmin FROM users WHERE email = $1",
       [email]
     );
 
@@ -254,11 +295,40 @@ app.post("/auth/login", async (req, res) => {
         last_name: user.last_name,
         email: user.email,
         is_admin: user.is_admin,
+        is_superadmin: user.is_superadmin,
       },
     });
   } catch (err) {
     console.error("Login error:", err.message);
     res.status(500).json({ error: "Server error" });
+  }
+});
+
+//Create a user/ add user to org from crew page
+app.post("/auth/addUser", async (req, res) => {
+  const { org_id, email, first_name, last_name, hourly_rate, is_admin } =
+    req.body;
+
+  try {
+    // Make sure all required fields are provided
+    if (!org_id || !email || !first_name || !last_name) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO users (org_id, email, first_name, last_name, hourly_rate, is_admin)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id`,
+      [org_id, email, first_name, last_name, hourly_rate, is_admin]
+    );
+
+    res.status(201).json({
+      message: "User created and added successfully.",
+      user_id: result.rows[0].id,
+    });
+  } catch (error) {
+    console.error("Error creating and adding user:", error);
+    res.status(500).json({ error: "Failed to create and add user." });
   }
 });
 

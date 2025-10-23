@@ -1,44 +1,85 @@
-// CrewPage.jsx
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import { api } from "./api.js";
 import { MdSave } from "react-icons/md";
+import Modal from "./Modal.jsx";
 import "./CrewPage.css";
 import "./JobsListPage.css";
 
-function CrewPage({ user }) {
+function CrewPage({ user, setAddUserOpen, isAddUserOpen }) {
   const queryClient = useQueryClient();
 
-  // Fetch org users
-  const { data: orgUsers = [] } = useQuery({
-    queryKey: ["orgUsers", user?.id],
-    queryFn: () => api.get(`/orgusers`), // assume this returns org users with hourly_rate
-  });
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [wagesInput, setWagesInput] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [statusType, setStatusType] = useState(""); // "success" | "error"
 
-  // Local state for tracking wage edits
-  const [wages, setWages] = useState({});
-
-  // Mutation for updating the wage
-  const updateWageMutation = useMutation({
-    mutationFn: ({ id, hourly_rate }) =>
-      api.patch(`/users/${id}`, { hourly_rate }), // PATCH to /users/:id
+  // ✅ Mutation to add user to org
+  const addUserMutation = useMutation({
+    mutationFn: (data) => api.post("/auth/addUser", data),
     onSuccess: () => {
-      queryClient.invalidateQueries(["orgUsers", user?.id]); // Refetch data
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setWagesInput("");
+      setIsAdmin(false);
+      setStatusType("success");
+      setStatusMessage("User added successfully!");
+      queryClient.invalidateQueries(["orgUsers", user?.id]);
+    },
+    onError: (error) => {
+      console.error("Error adding user:", error);
+      setStatusType("error");
+      setStatusMessage(error?.response?.data?.error || "Failed to add user.");
     },
   });
 
-  const handleWageChange = (id, value) => {
-    setWages((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
-  };
+  // ✅ Handle Add User
+  function handleAddUser() {
+    if (!firstName || !lastName || !email) {
+      setStatusType("error");
+      setStatusMessage("Please fill in all fields.");
+      return;
+    }
+
+    const newUser = {
+      org_id: user?.org_id,
+      email,
+      first_name: firstName,
+      last_name: lastName,
+      is_admin: isAdmin,
+      hourly_rate: parseFloat(wagesInput),
+    };
+
+    addUserMutation.mutate(newUser);
+  }
+
+  // ✅ Fetch org users
+  const { data: orgUsers = [] } = useQuery({
+    queryKey: ["orgUsers", user?.id],
+    queryFn: () => api.get(`/orgusers`),
+  });
+
+  // ✅ Wage editing
+  const [wages, setWages] = useState({});
+  const updateWageMutation = useMutation({
+    mutationFn: ({ id, hourly_rate }) =>
+      api.patch(`/users/${id}`, { hourly_rate }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["orgUsers", user?.id]);
+    },
+  });
+
+  const handleWageChange = (id, value) =>
+    setWages((prev) => ({ ...prev, [id]: value }));
 
   const handleSave = (id) => {
     const newWage = wages[id];
     if (newWage !== undefined && newWage !== "") {
-      console.log("Saving wage for user ID:", id, "New wage:", newWage);
       updateWageMutation.mutate({ id, hourly_rate: parseFloat(newWage) });
       alert("New wage saved.");
     }
@@ -60,6 +101,7 @@ function CrewPage({ user }) {
         </NavLink>
       </h1>
 
+      {/* Crew Table */}
       <table className="crew-table">
         <thead>
           <tr>
@@ -105,6 +147,85 @@ function CrewPage({ user }) {
           ))}
         </tbody>
       </table>
+      {/* Add User Modal */}
+      <Modal
+        title="Add User"
+        isOpen={isAddUserOpen}
+        onClose={() => setAddUserOpen(false)}
+      >
+        <div className="jobs-list-modal-input-container">
+          {/* First Name */}
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="Enter User First Name..."
+            className="jobs-list-modal-input"
+            required
+          />
+
+          {/* Last Name */}
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Enter User Last Name..."
+            className="jobs-list-modal-input"
+            required
+          />
+
+          {/* Email */}
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter User Email..."
+            className="jobs-list-modal-input"
+            required
+          />
+
+          {/* Wage */}
+          <input
+            type="number"
+            step="0.01"
+            value={wagesInput ?? ""}
+            onChange={(e) => setWagesInput(e.target.value)}
+            placeholder="Enter Hourly Rate..."
+            className="jobs-list-modal-input"
+            required
+          />
+
+          {/* Admin Selector */}
+          <select
+            value={isAdmin}
+            onChange={(e) => setIsAdmin(e.target.value === "true")}
+            className="jobs-list-modal-input"
+          >
+            <option value="false">Worker</option>
+            <option value="true">Admin</option>
+          </select>
+
+          {/* Status Message */}
+          {statusMessage && (
+            <p
+              className={`status-message ${
+                statusType === "error" ? "error" : "success"
+              }`}
+            >
+              {statusMessage}
+            </p>
+          )}
+
+          {/* Add Button */}
+          <button
+            onClick={handleAddUser}
+            className="jobs-list-modal-button"
+            disabled={addUserMutation.isLoading}
+          >
+            {addUserMutation.isLoading ? "Adding..." : "Add"}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

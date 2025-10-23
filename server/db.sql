@@ -16,19 +16,21 @@ CREATE TABLE time_logs (
 -- this is where organizations are created/stored
 CREATE TABLE organizations (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'inactive' -- 'active' when paid ("trial", "active", or "inactive")
 );
 
 -- this will be where users are created/stored
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     org_id INT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
+    first_name TEXT,
+    last_name TEXT,
     email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
+    password_hash TEXT,
     is_admin BOOLEAN NOT NULL DEFAULT FALSE,
-    hourly_rate NUMERIC(10,2) DEFAULT 0
+    hourly_rate NUMERIC(10,2) DEFAULT 0,
+    is_superadmin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- this is where job information will be created/stored
