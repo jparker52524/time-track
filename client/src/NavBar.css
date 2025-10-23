@@ -157,6 +157,7 @@
   margin: 20px auto;      /* Center horizontally */
   text-align: center;
   white-space: nowrap;
+  min-width: fit-content;
 }
 
 .add-btn:hover {
