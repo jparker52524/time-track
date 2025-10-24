@@ -332,6 +332,41 @@ app.post("/auth/addUser", async (req, res) => {
   }
 });
 
+app.patch("/auth/signup", async (req, res) => {
+  const { email, first_name, last_name, password } = req.body;
+  console.log(req.body);
+
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required." });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `UPDATE users
+       SET first_name = $1,
+           last_name = $2,
+           password_hash = $3
+       WHERE email = $4
+       RETURNING id`,
+      [first_name, last_name, hashedPassword, email]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    res.status(200).json({
+      message: "User updated successfully.",
+      user_id: result.rows[0].id,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Failed to update user." });
+  }
+});
+
 //Create a job (ADMIN)
 app.post("/jobs", authenticateToken, async (req, res) => {
   console.log("📥 Received req.body:", req.body);

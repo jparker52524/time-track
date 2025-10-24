@@ -15,11 +15,8 @@ function SignUpPage() {
   const navigate = useNavigate();
 
   const signupMutation = useMutation({
-    mutationFn: (data) => api.post("/auth/signup", data),
+    mutationFn: (data) => api.patch("/auth/signup", data),
     onSuccess: (res) => {
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("user", JSON.stringify(res.user));
-
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -30,7 +27,7 @@ function SignUpPage() {
       setStatusMessage("Sign up successful!");
 
       // Optional redirect after short delay
-      setTimeout(() => navigate("/JobsListPage"), 1500);
+      //setTimeout(() => navigate("/JobsListPage"), 1500);
     },
     onError: (error) => {
       setStatusType("error");
@@ -51,7 +48,12 @@ function SignUpPage() {
     }
 
     setStatusMessage("");
-    signupMutation.mutate({ firstName, lastName, email, password });
+    signupMutation.mutate({
+      first_name: firstName,
+      last_name: lastName,
+      password,
+      email,
+    });
   }
 
   return (
