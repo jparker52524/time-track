@@ -543,6 +543,55 @@ app.get("/orgusers", authenticateToken, async (req, res) => {
   }
 });
 
+// edit user
+app.patch("/auth/users", async (req, res) => {
+  const { first_name, last_name, email, hourly_rate, is_admin, id } = req.body;
+
+  console.log(req.body);
+
+  try {
+    const result = await pool.query(
+      `UPDATE users 
+       SET first_name = $1,
+           last_name = $2,
+           email = $3,
+           hourly_rate = $4,
+           is_admin = $5
+       WHERE id = $6
+       RETURNING *`,
+      [first_name, last_name, email, hourly_rate, is_admin, id]
+    );
+
+    console.log("✅ User updated:", result.rows[0]);
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("🔥 Error updating user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//delete a user (ADMIN)
+app.delete("/auth/users", authenticateToken, async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM users WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "User deleted successfully", job: result.rows[0] });
+  } catch (err) {
+    console.error("Error deleting user:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// edit wages (this was when there was a save icon for wages only)
 app.patch("/users/:id", async (req, res) => {
   const userId = req.params.id;
   const { hourly_rate } = req.body;

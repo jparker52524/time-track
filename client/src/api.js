@@ -16,10 +16,13 @@ async function request(endpoint, options = {}) {
   const isJson = res.headers.get("content-type")?.includes("application/json");
   const data = isJson ? await res.json().catch(() => null) : null;
 
-  // Only redirect on 403 (unauthorized / token expired)
+  // Only redirect on 403 (unauthorized)
   if (res.status === 403) {
     localStorage.removeItem("token");
-    window.location.href = "/"; // go to login
+    alert("Session expired. Please log in again.");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 500);
     return;
   }
 

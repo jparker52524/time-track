@@ -156,5 +156,30 @@
   background-color: #0056b3;
 }
 
+.action-icons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
 
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
 
+.icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.icon-btn svg {
+  color: #333;
+}
+
+.icon-btn:hover svg {
+  color: #0077cc;
+}
