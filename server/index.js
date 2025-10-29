@@ -214,7 +214,11 @@ app.delete("/file", authenticateToken, async (req, res) => {
 //Create Org
 app.post("/auth/createOrg", async (req, res) => {
   const { orgName, firstName, lastName, email, password } = req.body;
-  console.log(req.body);
+
+  // normalize input (so frontend casing doesn't matter)
+  firstName = firstName.trim();
+  lastName = lastName.trim();
+  email = email.trim().toLowerCase();
 
   try {
     await pool.query("BEGIN");
@@ -253,6 +257,8 @@ app.post("/auth/createOrg", async (req, res) => {
 //Login
 app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
+
+  email = email.trim().toLowerCase();
 
   try {
     // 1. find user by email
@@ -309,6 +315,10 @@ app.post("/auth/addUser", async (req, res) => {
   const { org_id, email, first_name, last_name, hourly_rate, is_admin } =
     req.body;
 
+  first_name = first_name.trim();
+  last_name = last_name.trim();
+  email = email.trim().toLowerCase();
+
   try {
     // Make sure all required fields are provided
     if (!org_id || !email || !first_name || !last_name) {
@@ -334,7 +344,10 @@ app.post("/auth/addUser", async (req, res) => {
 
 app.patch("/auth/signup", async (req, res) => {
   const { email, first_name, last_name, password } = req.body;
-  console.log(req.body);
+
+  first_name = first_name.trim();
+  last_name = last_name.trim();
+  email = email.trim().toLowerCase();
 
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password are required." });
@@ -547,6 +560,10 @@ app.get("/orgusers", authenticateToken, async (req, res) => {
 app.patch("/auth/users", async (req, res) => {
   const { first_name, last_name, email, hourly_rate, is_admin, id } = req.body;
 
+  first_name = first_name.trim();
+  last_name = last_name.trim();
+  email = email.trim().toLowerCase();
+
   try {
     const result = await pool.query(
       `UPDATE users 
@@ -568,7 +585,7 @@ app.patch("/auth/users", async (req, res) => {
   }
 });
 
-//delete a user (ADMIN)
+// delete a user (ADMIN)
 app.delete("/auth/users", authenticateToken, async (req, res) => {
   const { id } = req.body;
 
