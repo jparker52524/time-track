@@ -547,8 +547,6 @@ app.get("/orgusers", authenticateToken, async (req, res) => {
 app.patch("/auth/users", async (req, res) => {
   const { first_name, last_name, email, hourly_rate, is_admin, id } = req.body;
 
-  console.log(req.body);
-
   try {
     const result = await pool.query(
       `UPDATE users 
