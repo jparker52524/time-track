@@ -213,7 +213,7 @@ app.delete("/file", authenticateToken, async (req, res) => {
 
 //Create Org
 app.post("/auth/createOrg", async (req, res) => {
-  const { orgName, firstName, lastName, email, password } = req.body;
+  let { orgName, firstName, lastName, email, password } = req.body;
 
   // normalize input (so frontend casing doesn't matter)
   firstName = firstName.trim();
@@ -256,7 +256,7 @@ app.post("/auth/createOrg", async (req, res) => {
 
 //Login
 app.post("/auth/login", async (req, res) => {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
 
   email = email.trim().toLowerCase();
 
@@ -312,7 +312,7 @@ app.post("/auth/login", async (req, res) => {
 
 //Create a user/ add user to org from crew page
 app.post("/auth/addUser", async (req, res) => {
-  const { org_id, email, first_name, last_name, hourly_rate, is_admin } =
+  let { org_id, email, first_name, last_name, hourly_rate, is_admin } =
     req.body;
 
   first_name = first_name.trim();
@@ -343,7 +343,7 @@ app.post("/auth/addUser", async (req, res) => {
 });
 
 app.patch("/auth/signup", async (req, res) => {
-  const { email, first_name, last_name, password } = req.body;
+  let { email, first_name, last_name, password } = req.body;
 
   first_name = first_name.trim();
   last_name = last_name.trim();
@@ -558,7 +558,7 @@ app.get("/orgusers", authenticateToken, async (req, res) => {
 
 // edit user
 app.patch("/auth/users", async (req, res) => {
-  const { first_name, last_name, email, hourly_rate, is_admin, id } = req.body;
+  let { first_name, last_name, email, hourly_rate, is_admin, id } = req.body;
 
   first_name = first_name.trim();
   last_name = last_name.trim();
