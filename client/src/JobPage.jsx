@@ -342,6 +342,17 @@ function JobPage({ user }) {
     queryFn: () => api.get(`/orgusers`),
   });
 
+  // get job times
+  const {
+    data: jobTimes,
+    isLoading: timesLoading,
+    isError: timesError,
+    error: timesErrorObj,
+  } = useQuery({
+    queryKey: ["jobtimes", job?.id],
+    queryFn: () => api.get(`/jobtimes?job_id=${job.id}`),
+  });
+
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -445,6 +456,35 @@ function JobPage({ user }) {
         <div className="modal-stat">
           Labor Cost: {formatter.format(formattedTotalLaborCost)}
         </div>
+        <div className="modal-stat">
+          Total Time: {jobTimes?.total_hours} hrs
+        </div>
+        {/* new time stuff start */}
+        <div className="modal-scroll">
+          <div>
+            {timesLoading && <p>Loading job times...</p>}
+            {timesError && <p>Error: {timesErrorObj.message}</p>}
+            {jobTimes?.times?.length > 0 ? (
+              <>
+                {jobTimes.times.map((t, idx) => (
+                  <div key={idx} className="modal-cost-entry">
+                    <strong>{t.duration_hours} hrs</strong>{" "}
+                    <span>
+                      ({t.start} – {t.end})
+                    </span>{" "}
+                    <br />
+                    <span>
+                      {t.date} · {t.user}
+                    </span>
+                  </div>
+                ))}
+              </>
+            ) : (
+              !timesLoading && <p>No job times found.</p>
+            )}
+          </div>
+        </div>
+        {/* new time stuff end */}
       </Modal>
 
       {/* Description Modal */}

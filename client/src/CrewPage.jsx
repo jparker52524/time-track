@@ -165,6 +165,7 @@ function CrewPage({ user, setAddUserOpen, isAddUserOpen }) {
           <tr>
             <th>Name</th>
             <th>Wage</th>
+            <th>Admin</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -174,19 +175,8 @@ function CrewPage({ user, setAddUserOpen, isAddUserOpen }) {
               <td>
                 {orgUser.first_name} {orgUser.last_name}
               </td>
-              <td>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={
-                    wages[orgUser.id] !== undefined
-                      ? wages[orgUser.id]
-                      : orgUser.hourly_rate || ""
-                  }
-                  onChange={(e) => handleWageChange(orgUser.id, e.target.value)}
-                  placeholder="Enter wage"
-                />
-              </td>
+              <td>{orgUser.hourly_rate} $/hr</td>
+              <td>{orgUser.is_admin ? "Admin" : "Worker"}</td>
               <td>
                 <div className="action-icons">
                   <button

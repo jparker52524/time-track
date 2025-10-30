@@ -800,6 +800,82 @@ app.post("/timeLog", authenticateToken, async (req, res) => {
 });
 
 // MODAL START --------------- THIS IS NOT IMPLIMENTED ---------------
+// Get all job times for a job, with durations in hours
+app.get("/jobtimes", authenticateToken, async (req, res) => {
+  const { job_id } = req.query; // ✅ Use query params for GET requests
+
+  if (!job_id) {
+    return res.status(400).json({ error: "job_id is required" });
+  }
+
+  try {
+    // Query job times and join user info
+    const result = await pool.query(
+      `
+      SELECT 
+        jt.start_time,
+        jt.end_time,
+        u.first_name,
+        u.last_name,
+        ROUND(EXTRACT(EPOCH FROM (jt.end_time - jt.start_time)) / 3600, 2) AS duration_hours
+      FROM job_times jt
+      JOIN users u ON u.id = jt.user_id
+      WHERE jt.job_id = $1
+      ORDER BY jt.start_time;
+      `,
+      [job_id]
+    );
+
+    // Format results nicely
+    const formatted = result.rows.map((row) => {
+      const start = new Date(row.start_time);
+      const end = new Date(row.end_time);
+
+      // 🗓 Add readable date
+      const formattedDate = start.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+
+      return {
+        user: `${row.first_name} ${row.last_name}`,
+        date: formattedDate,
+        start: start.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+        }),
+        end: end.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+        }),
+        duration_hours: row.duration_hours,
+        description: `(${row.duration_hours} hrs) ${start.toLocaleTimeString(
+          [],
+          {
+            hour: "numeric",
+            minute: "2-digit",
+          }
+        )} - ${end.toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit",
+        })} - ${row.first_name} ${row.last_name}`,
+      };
+    });
+
+    // Optionally, compute total hours for this job
+    const total_hours = formatted
+      .reduce((sum, row) => sum + Number(row.duration_hours || 0), 0)
+      .toFixed(2);
+
+    res.json({ job_id, total_hours, times: formatted });
+  } catch (error) {
+    console.error("Error fetching job times:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all notes for a job
 app.get("/jobs/:jobId/notes", authenticateToken, async (req, res) => {
   const { jobId } = req.params;
