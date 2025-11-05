@@ -183,7 +183,6 @@ function CrewPage({ user, setAddUserOpen, isAddUserOpen }) {
                     className="icon-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(orgUser);
                       setUserBeingEdited(orgUser);
                       setFirstName(orgUser.first_name || "");
                       setLastName(orgUser.last_name || "");

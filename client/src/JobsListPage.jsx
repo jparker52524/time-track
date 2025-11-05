@@ -25,8 +25,15 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
 
   const fetchJobs = async () => {
     if (!user) return [];
-    // token is already handled inside api wrapper
-    const data = await api.get("/userJobsList");
+
+    let endpoint = "/userJobsList"; // default for admins and normal users
+
+    // If user is a superadmin → fetch all jobs in their organization
+    if (user.is_superadmin) {
+      endpoint = `/org/${user.org_id}/jobs`;
+    }
+
+    const data = await api.get(endpoint);
     return data;
   };
 
@@ -36,7 +43,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
     isError,
     error,
   } = useQuery({
-    queryKey: ["jobs", user?.id],
+    queryKey: ["jobs", user?.id, user?.is_superadmin],
     queryFn: fetchJobs,
     enabled: !!user,
   });
@@ -163,7 +170,7 @@ function JobsListPage({ user, setAddJobOpen, isAddJobOpen }) {
         <NavLink to="/JobsListPage" className="nav-link">
           Jobs
         </NavLink>
-        {user.is_admin && (
+        {user.is_superadmin && (
           <NavLink
             to="/CrewPage"
             className={({ isActive }) =>

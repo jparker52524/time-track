@@ -285,6 +285,7 @@ app.post("/auth/login", async (req, res) => {
         org_id: user.org_id,
         email: user.email,
         is_admin: user.is_admin,
+        is_superadmin: user.is_superadmin,
       },
       process.env.JWT_SECRET,
       { expiresIn: "12h" }
@@ -666,6 +667,33 @@ app.get("/userJobsList", authenticateToken, async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all jobs for an organization (Superadmin only)
+app.get("/org/:orgId/jobs", authenticateToken, async (req, res) => {
+  try {
+    // Only allow superadmins to access this route
+    if (!req.user.is_superadmin) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    const { orgId } = req.params;
+
+    const result = await pool.query(
+      `
+      SELECT j.*
+      FROM jobs j
+      WHERE j.org_id = $1
+      ORDER BY j.id DESC
+      `,
+      [orgId]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching org jobs:", err);
     res.status(500).json({ error: err.message });
   }
 });
