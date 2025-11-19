@@ -117,9 +117,9 @@ function CrewPage({ user, setAddUserOpen, isAddUserOpen }) {
   });
 
   // ✅ Fetch org users
-  const { data: orgUsers = [] } = useQuery({
-    queryKey: ["orgUsers", user?.id],
-    queryFn: () => api.get(`/orgusers`),
+  const { data: allOrgUsers = [] } = useQuery({
+    queryKey: ["allOrgUsers", user?.id],
+    queryFn: () => api.get(`/allorgusers`),
   });
 
   // ✅ Wage editing
@@ -128,7 +128,7 @@ function CrewPage({ user, setAddUserOpen, isAddUserOpen }) {
     mutationFn: ({ id, hourly_rate }) =>
       api.patch(`/users/${id}`, { hourly_rate }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["orgUsers", user?.id]);
+      queryClient.invalidateQueries(["allOrgUsers", user?.id]);
     },
   });
 
@@ -170,7 +170,7 @@ function CrewPage({ user, setAddUserOpen, isAddUserOpen }) {
           </tr>
         </thead>
         <tbody>
-          {orgUsers.map((orgUser) => (
+          {allOrgUsers.map((orgUser) => (
             <tr key={orgUser.id}>
               <td>
                 {orgUser.first_name} {orgUser.last_name}
